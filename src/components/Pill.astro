@@ -1,0 +1,207 @@
+---
+/**
+ * Pill button/link with the small directional arrow from the reference.
+ * - `kind="affiliate"` → new tab, rel="noopener sponsored"
+ * - `kind="external"`  → new tab, rel="noopener"
+ * - `kind="internal"`  → same-page anchor
+ * When `href` is missing or unusable it renders a deliberate unavailable state.
+ */
+import { isUsableUrl, outbound, external } from '../lib/links';
+
+interface Props {
+  href?: string;
+  label: string;
+  kind?: 'affiliate' | 'external' | 'internal';
+  variant?: 'primary' | 'secondary' | 'light';
+  size?: 'md' | 'sm';
+  block?: boolean;
+  unavailableLabel?: string;
+  /** Extra context for screen readers, e.g. the product name. */
+  srContext?: string;
+  class?: string;
+}
+
+const {
+  href,
+  label,
+  kind = 'internal',
+  variant = 'primary',
+  size = 'md',
+  block = false,
+  unavailableLabel = 'Link coming soon',
+  srContext,
+  class: className,
+} = Astro.props;
+
+const usable = kind === 'internal' ? Boolean(href) : isUsableUrl(href);
+const attrs = kind === 'affiliate' ? outbound : kind === 'external' ? external : {};
+const classes = ['pill', `pill--${variant}`, `pill--${size}`, block && 'pill--block', className];
+---
+
+{
+  usable ? (
+    <a href={href} class:list={classes} {...attrs}>
+      <span class="pill__fill" aria-hidden="true" />
+      <svg class="pill__arrow pill__arrow--lead" viewBox="0 0 8 10" width="8" height="10" aria-hidden="true">
+        <path d="M0 0v10l8-5z" fill="currentColor" />
+      </svg>
+      <span class="pill__label">
+        {label}
+        {srContext && <span class="visually-hidden">: {srContext}</span>}
+        {kind !== 'internal' && <span class="visually-hidden"> (opens in a new tab)</span>}
+      </span>
+      <svg class="pill__arrow pill__arrow--trail" viewBox="0 0 8 10" width="8" height="10" aria-hidden="true">
+        <path d="M0 0v10l8-5z" fill="currentColor" />
+      </svg>
+    </a>
+  ) : (
+    <span class:list={[...classes, 'pill--unavailable']}>
+      <span class="pill__label">
+        {unavailableLabel}
+        {srContext && <span class="visually-hidden">: {srContext}</span>}
+      </span>
+    </span>
+  )
+}
+
+<style is:global>
+  /*
+   * Hover, matched to the reference: a circular fill grows from the centre,
+   * the trailing arrow exits right while a lead arrow enters on the left,
+   * and the label slides across to make room.
+   */
+  .pill {
+    --pill-bg: var(--color-ink);
+    --pill-fg: var(--color-on-dark);
+    --pill-border: var(--pill-bg);
+    --pill-fill: #4a4c46;
+    --pill-fg-hover: var(--color-on-dark);
+    --pill-pad-start: 22px;
+    --pill-shift: 22px;
+    --pill-ease: cubic-bezier(0.625, 0.05, 0, 1);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    min-width: 200px;
+    min-height: 48px;
+    padding: 12px 18px 12px var(--pill-pad-start);
+    border: 1px solid var(--pill-border);
+    border-radius: var(--radius-pill);
+    background: var(--pill-bg);
+    color: var(--pill-fg);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    line-height: 1.4;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      border-color 300ms ease-in-out,
+      color 300ms ease-in-out,
+      background-color 0ms;
+  }
+  .pill--secondary,
+  .pill--light {
+    --pill-bg: var(--color-bg);
+    --pill-fg: var(--color-ink);
+    --pill-border: var(--color-border);
+    --pill-fill: var(--color-ink);
+  }
+  .pill--light {
+    --pill-border: var(--color-bg);
+  }
+  .pill--sm {
+    --pill-pad-start: 18px;
+    --pill-shift: 20px;
+    min-width: 0;
+    min-height: 44px;
+    padding: 10px 16px 10px var(--pill-pad-start);
+    gap: 14px;
+  }
+  .pill--block {
+    display: flex;
+    width: 100%;
+  }
+
+  .pill__fill {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: -1;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--pill-fill);
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(0);
+    transition:
+      transform 400ms ease-in-out,
+      opacity 400ms ease-in-out;
+    pointer-events: none;
+  }
+  .pill__label {
+    transition: transform 620ms var(--pill-ease);
+  }
+  .pill__arrow {
+    flex: none;
+    transition: transform 620ms var(--pill-ease);
+  }
+  .pill__arrow--lead {
+    position: absolute;
+    left: var(--pill-pad-start);
+    top: 50%;
+    margin-top: -5px;
+    transform: translateX(calc(-1 * var(--pill-pad-start) - 12px));
+  }
+
+  a.pill:is(:hover, :focus-visible) {
+    --pill-border: var(--pill-fill);
+    color: var(--pill-fg-hover);
+    /* Once the circle has filled, paint the button itself the same colour so no
+       anti-aliased seam of the old background shows at the rounded ends. */
+    background-color: var(--pill-fill);
+    transition:
+      border-color 300ms ease-in-out,
+      color 300ms ease-in-out,
+      background-color 0ms linear 380ms;
+  }
+  a.pill:is(:hover, :focus-visible) .pill__fill {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  a.pill:is(:hover, :focus-visible) .pill__label {
+    transform: translateX(var(--pill-shift));
+  }
+  a.pill:is(:hover, :focus-visible) .pill__arrow--lead {
+    transform: none;
+  }
+  a.pill:is(:hover, :focus-visible) .pill__arrow--trail {
+    transform: translateX(calc(100% + 26px));
+  }
+  .pill--block .pill__fill {
+    width: 100%;
+  }
+  a.pill--block:is(:hover, :focus-visible) .pill__fill {
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+
+  .pill--unavailable {
+    --pill-bg: transparent;
+    --pill-fg: var(--color-muted);
+    --pill-border: var(--color-border);
+    justify-content: center;
+    border-style: dashed;
+    cursor: default;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pill__label,
+    .pill__arrow,
+    .pill__fill {
+      transition: none;
+    }
+  }
+</style>

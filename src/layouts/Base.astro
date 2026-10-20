@@ -1,0 +1,189 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource-variable/bricolage-grotesque';
+import '../styles/global.css';
+import { site } from '../config/site';
+import { withBase } from '../lib/paths';
+const currencyConfig = JSON.stringify(site.currency);
+
+interface Props {
+  /** Keep preview/test pages out of search results. */
+  noindex?: boolean;
+  title?: string;
+}
+const { noindex = false, title = site.title } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const { plausibleDomain } = site.analytics;
+const shareImage = new URL(withBase(site.shareImage), Astro.site);
+---
+
+<!doctype html>
+<html lang="en" data-analytics={plausibleDomain ? 'on' : 'off'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="description" content={site.description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.brandName} />
+    <meta property="og:title" content={site.title} />
+    <meta property="og:description" content={site.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={shareImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={site.title} />
+    <meta name="twitter:description" content={site.description} />
+    <meta name="twitter:image" content={shareImage} />
+
+    <link rel="preconnect" href="https://images.unsplash.com" />
+
+    <script is:inline>
+      // Lets CSS hide reveal-on-scroll content only when JS can reveal it again.
+      document.documentElement.classList.add('js');
+      // beaTrack(name, props): sends a custom event to Plausible when it's configured.
+      window.plausible =
+        window.plausible ||
+        function () {
+          (window.plausible.q = window.plausible.q || []).push(arguments);
+        };
+      window.beaTrack = function (name, props) {
+        if (document.documentElement.dataset.analytics === 'on') window.plausible(name, { props: props || {} });
+        if (location.hostname === 'localhost') console.debug('[track]', name, props || {});
+      };
+    </script>
+    {
+      plausibleDomain && (
+        <script is:inline defer data-domain={plausibleDomain} src="https://plausible.io/js/script.js" />
+      )
+    }
+  </head>
+  <body id="top">
+    <a class="skip-link" href="#main">Skip to content</a>
+    {
+      site.demoMode && (
+        <p class="demo-note">
+          Demo catalog: most products, photos and links are placeholders. Edit <code>src/data</code> to replace
+          them.
+        </p>
+      )
+    }
+    <slot name="header" />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <slot name="footer" />
+    <script type="application/json" id="currency-config" set:html={currencyConfig} />
+
+    <script>
+      // Missing or broken images: try data-fallback-src once, then show the labelled placeholder.
+      const recover = (img: HTMLImageElement) => {
+        const alt = img.dataset.fallbackSrc;
+        if (alt && img.getAttribute('src') !== alt) {
+          img.removeAttribute('srcset');
+          img.src = alt;
+        } else {
+          img.parentElement?.classList.add('is-missing');
+        }
+      };
+      document.addEventListener(
+        'error',
+        (e) => {
+          const t = e.target;
+          if (t instanceof HTMLImageElement && t.hasAttribute('data-fallback')) recover(t);
+        },
+        true,
+      );
+      document.querySelectorAll<HTMLImageElement>('img[data-fallback]').forEach((img) => {
+        if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) recover(img);
+      });
+
+      // Currency: prices are stored in USD; visitors can switch to PHP. The choice is remembered.
+      const cfg = JSON.parse(document.getElementById('currency-config')!.textContent || '{}');
+      const usdFmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+      const phpFmt = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
+      let currency: 'USD' | 'PHP' = cfg.default || 'USD';
+      try {
+        const saved = localStorage.getItem('bea-currency');
+        if (saved === 'USD' || saved === 'PHP') currency = saved;
+      } catch {}
+      const formatPrices = (root: ParentNode = document) => {
+        root.querySelectorAll<HTMLElement>('[data-price-usd]').forEach((el) => {
+          const usd = Number(el.dataset.priceUsd);
+          el.textContent = currency === 'PHP' ? `≈ ${phpFmt.format(usd * cfg.usdToPhp)}` : usdFmt.format(usd);
+        });
+        document
+          .querySelectorAll<HTMLElement>('[data-currency-set]')
+          .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.currencySet === currency)));
+      };
+      (window as any).beaFormatPrices = formatPrices;
+      document.addEventListener('click', (e) => {
+        const btn = (e.target as Element).closest<HTMLElement>('[data-currency-set]');
+        if (!btn) return;
+        currency = btn.dataset.currencySet as 'USD' | 'PHP';
+        try {
+          localStorage.setItem('bea-currency', currency);
+        } catch {}
+        formatPrices();
+        (window as any).beaTrack?.('Currency', { currency });
+      });
+      formatPrices();
+
+      // Reveal on scroll: [data-reveal] fades up; [data-reveal-stagger] fades its children up in turn.
+      const revealables = document.querySelectorAll<HTMLElement>('[data-reveal], [data-reveal-stagger]');
+      document.querySelectorAll<HTMLElement>('[data-reveal-stagger]').forEach((group) =>
+        [...group.children].forEach((child, i) => (child as HTMLElement).style.setProperty('--i', String(i))),
+      );
+      if ('IntersectionObserver' in window) {
+        const io = new IntersectionObserver(
+          (entries) =>
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add('is-in');
+              io.unobserve(entry.target);
+            }),
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
+        );
+        revealables.forEach((el) => io.observe(el));
+      } else {
+        revealables.forEach((el) => el.classList.add('is-in'));
+      }
+
+      // Click tracking: every TikTok link reports which product or video it belongs to.
+      const track = (window as any).beaTrack as (name: string, props?: Record<string, string>) => void;
+      document.addEventListener('click', (e) => {
+        const a = (e.target as Element).closest<HTMLAnchorElement>('a[href]');
+        if (!a || !/(^|\.)tiktok\.com$/.test(a.hostname)) return;
+        const owner = a.closest<HTMLElement>('[data-id]');
+        if (a.rel.includes('sponsored')) {
+          track('TikTok product click', { product: a.dataset.product || owner?.dataset.id || 'unknown' });
+        } else if (a.pathname.includes('/video/')) {
+          track('TikTok video click', { video: owner?.dataset.videoId || a.pathname });
+        } else {
+          track('TikTok profile click');
+        }
+      });
+    </script>
+
+    <style>
+      .demo-note {
+        padding: 9px var(--gutter);
+        background: var(--color-accent-tint);
+        color: var(--color-accent-ink);
+        font-size: var(--text-xs);
+        line-height: 1.4;
+        text-align: center;
+      }
+      .demo-note code {
+        font-size: 0.95em;
+      }
+      main:focus {
+        outline: none;
+      }
+    </style>
+  </body>
+</html>

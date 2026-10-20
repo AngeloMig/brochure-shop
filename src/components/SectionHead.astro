@@ -1,0 +1,46 @@
+---
+/** Editorial section header: big uppercase heading left, supporting text + actions right. */
+interface Props {
+  id: string;
+  heading: string;
+  text?: string;
+}
+const { id, heading, text } = Astro.props;
+---
+
+<div class="section-head" data-reveal>
+  <h2 id={id} class="display h2">{heading}</h2>
+  <div class="section-head__aside">
+    {text && <p class="lede">{text}</p>}
+    {Astro.slots.has('default') && <div class="section-head__actions"><slot /></div>}
+  </div>
+</div>
+
+<style>
+  .section-head {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .section-head h2 {
+    max-width: 14ch;
+  }
+  .section-head__aside {
+    display: grid;
+    gap: 24px;
+    align-content: start;
+  }
+  .section-head__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+  }
+  @media (min-width: 900px) {
+    .section-head {
+      grid-template-columns: 1fr minmax(0, 420px);
+      gap: 48px;
+      margin-bottom: 56px;
+    }
+  }
+</style>

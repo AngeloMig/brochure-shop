@@ -1,0 +1,73 @@
+---
+/**
+ * Image with a stable aspect ratio and a graceful fallback when the file is
+ * missing or fails to load (the global script in Base.astro flags failures).
+ */
+import { imageAttrs, localAspect, scaleSizes } from '../lib/images';
+import { withBase } from '../lib/paths';
+
+interface Props {
+  src?: string;
+  alt: string;
+  /** width / height */
+  ratio: number;
+  sizes?: string;
+  eager?: boolean;
+  /** Object-position for the crop. */
+  position?: string;
+  fallbackLabel?: string;
+  /** Image to try if `src` is missing or fails to load. */
+  fallbackSrc?: string;
+  class?: string;
+}
+
+const {
+  src = '',
+  alt,
+  ratio,
+  sizes = '100vw',
+  eager = false,
+  position,
+  fallbackLabel = 'Image coming soon',
+  fallbackSrc,
+  class: className,
+} = Astro.props;
+
+const img = imageAttrs(src, { ratio });
+// A wider-than-frame local photo is cropped by object-fit: ask for a proportionally larger file.
+const aspect = localAspect(src);
+const finalSizes = aspect ? scaleSizes(sizes, aspect / ratio) : sizes;
+---
+
+<div class:list={['media', className, !img && 'is-missing']} style={`aspect-ratio: ${ratio};`}>
+  {
+    img && (
+      <img
+        src={img.src}
+        srcset={img.srcset}
+        sizes={img.srcset ? finalSizes : undefined}
+        alt={alt}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+        fetchpriority={eager ? 'high' : undefined}
+        style={position ? `object-position: ${position};` : undefined}
+        data-fallback
+        data-fallback-src={fallbackSrc ? withBase(fallbackSrc) : undefined}
+      />
+    )
+  }
+  <span class="media-fallback" aria-hidden="true">{fallbackLabel}</span>
+</div>
+
+<style>
+  .media {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-panel);
+  }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

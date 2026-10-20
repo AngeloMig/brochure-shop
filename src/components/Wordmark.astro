@@ -1,0 +1,178 @@
+---
+/**
+ * The "bea." header wordmark — Instrument Serif italic with optical kerning and
+ * a fine sage dot. Hover/focus: the letters lift in turn, a pen swash draws in
+ * underneath, and the dot hops onto the end of the stroke. Reduced motion
+ * shows the finished state without movement.
+ */
+import '@fontsource/instrument-serif/latin-400-italic.css';
+import { site } from '../config/site';
+
+interface Props {
+  href?: string;
+}
+
+const { href = '#top' } = Astro.props;
+const chars = [...site.brandName];
+---
+
+<a href={href} class="wordmark" aria-label={`${site.brandName} — back to top`}>
+  <span class="wordmark__word" aria-hidden="true">
+    {
+      chars.map((c, i) => (
+        <span class:list={['wordmark__char', `wordmark__char--${i}`]} style={`--i:${i}`}>
+          {c}
+        </span>
+      ))
+    }
+    <span class="wordmark__dot"></span>
+    <!--
+      Calligraphic swash: a tapered filled stroke (sharp at any size), revealed by
+      a mask whose centre line "draws" along the curve.
+    -->
+    <svg class="wordmark__swash" viewBox="0 0 120 14" aria-hidden="true" focusable="false">
+      <defs>
+        <mask id="bea-swash-ink" maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="14">
+          <path
+            class="wordmark__pen"
+            d="M3 10.6C25 4.6 49 3.8 72 6.9S106 12.2 117.5 4.4"
+            pathLength="1"
+          ></path>
+        </mask>
+      </defs>
+      <path
+        class="wordmark__ink"
+        mask="url(#bea-swash-ink)"
+        d="M3 10.6C25 3.4 49 1.8 72 5.1C95 8.4 105 10.4 117.5 4.4C106.8 13.8 94.8 12.2 72 8.7C49.6 5.5 25.8 6.6 3 10.6Z"
+      ></path>
+    </svg>
+  </span>
+</a>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: inherit;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wordmark__word {
+    --fs: 2.375rem;
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    /* balanced top/bottom so the mark centres optically next to the Menu pill */
+    padding: 0.06em 0.03em 0.06em 0.04em;
+    font-family: 'Instrument Serif', 'Times New Roman', serif;
+    font-size: var(--fs);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-kerning: normal;
+    transition: font-size 520ms var(--ease-out);
+  }
+  @media (min-width: 960px) {
+    .wordmark__word {
+      --fs: 2.875rem;
+    }
+  }
+  .wordmark__char {
+    display: inline-block;
+    transform-origin: 50% 100%;
+  }
+  /* Optical kerning: tuck the e into the b's bowl, and the a toward the e */
+  .wordmark__char--0 {
+    margin-right: -0.015em;
+  }
+  .wordmark__char--2 {
+    margin-left: -0.01em;
+  }
+  .wordmark__dot {
+    display: inline-block;
+    width: 0.145em;
+    height: 0.145em;
+    margin-left: 0.035em;
+    border-radius: 50%;
+    background: var(--color-accent);
+    transition: background-color 300ms ease 300ms;
+  }
+
+  /* Pen swash: tapered ink shape drawn at true proportions, so it stays crisp */
+  .wordmark__swash {
+    position: absolute;
+    left: 3%;
+    bottom: -0.1em;
+    width: 92%;
+    height: auto;
+    aspect-ratio: 120 / 14;
+    overflow: visible;
+    pointer-events: none;
+    shape-rendering: geometricPrecision;
+  }
+  .wordmark__ink {
+    fill: var(--color-accent);
+  }
+  /* The mask's centre line draws along the curve; a wide stroke covers the taper */
+  .wordmark__pen {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 9;
+    stroke-linecap: round;
+    stroke-dasharray: 1 1.2;
+    stroke-dashoffset: 1.05;
+    transition: stroke-dashoffset 360ms cubic-bezier(0.4, 0, 1, 1);
+  }
+  .wordmark:hover .wordmark__pen,
+  .wordmark:focus-visible .wordmark__pen {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 900ms cubic-bezier(0.65, 0, 0.25, 1) 120ms;
+  }
+  .wordmark:hover .wordmark__dot,
+  .wordmark:focus-visible .wordmark__dot {
+    background: currentColor;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .wordmark:hover .wordmark__char,
+    .wordmark:focus-visible .wordmark__char {
+      animation: lift 680ms var(--ease-out) calc(var(--i) * 60ms) both;
+    }
+    .wordmark:hover .wordmark__dot,
+    .wordmark:focus-visible .wordmark__dot {
+      animation: hop 760ms var(--ease-spring) 360ms both;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wordmark__pen,
+    .wordmark__dot {
+      transition: none !important;
+    }
+  }
+
+  @keyframes lift {
+    0%,
+    100% {
+      transform: none;
+    }
+    40% {
+      transform: translateY(-0.08em) rotate(-2deg);
+    }
+  }
+  @keyframes hop {
+    0% {
+      transform: none;
+    }
+    40% {
+      transform: translateY(-0.4em) scale(1.12);
+    }
+    72% {
+      transform: translateY(0.02em) scale(1.08, 0.9);
+    }
+    100% {
+      transform: none;
+    }
+  }
+</style>

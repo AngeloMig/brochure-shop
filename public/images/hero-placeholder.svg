@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1350" role="img" aria-label="Athena and Grace and Glow body wash bottles on stone plinths">
+<defs>
+  <linearGradient id="wall" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#e4e4e1"/><stop offset=".55" stop-color="#efefec"/><stop offset="1" stop-color="#f5f5f3"/>
+  </linearGradient>
+  <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#e9e8e4"/><stop offset="1" stop-color="#f6f5f2"/>
+  </linearGradient>
+  <linearGradient id="stone" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ebe6dc"/><stop offset="1" stop-color="#d9d2c4"/>
+  </linearGradient>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="38"/></filter>
+  <filter id="blur8"><feGaussianBlur stdDeviation="10"/></filter>
+</defs>
+<rect width="2400" height="1350" fill="url(#wall)"/>
+<g filter="url(#soft)" fill="#6f7466" opacity=".09">
+  <ellipse cx="260" cy="180" rx="240" ry="70" transform="rotate(-28 260 180)"/>
+  <ellipse cx="520" cy="300" rx="200" ry="60" transform="rotate(-34 520 300)"/>
+  <ellipse cx="180" cy="460" rx="260" ry="64" transform="rotate(-22 180 460)"/>
+  <ellipse cx="760" cy="120" rx="180" ry="50" transform="rotate(-40 760 120)"/>
+  <rect x="900" y="-200" width="160" height="1400" transform="rotate(32 980 500)" opacity=".5"/>
+</g>
+<rect y="1040" width="2400" height="310" fill="url(#floor)"/>
+<rect y="1040" width="2400" height="2" fill="#dcdbd6"/>
+<!-- plinths -->
+<ellipse cx="820" cy="1166" rx="300" ry="26" fill="#000" opacity=".08" filter="url(#blur8)"/>
+<rect x="600" y="1060" width="440" height="96" rx="8" fill="url(#stone)"/>
+<rect x="600" y="1060" width="440" height="10" rx="5" fill="#f1ede5"/>
+<ellipse cx="1580" cy="1166" rx="300" ry="26" fill="#000" opacity=".08" filter="url(#blur8)"/>
+<rect x="1360" y="1060" width="440" height="96" rx="8" fill="url(#stone)"/>
+<rect x="1360" y="1060" width="440" height="10" rx="5" fill="#f1ede5"/>
+<ellipse cx="1200" cy="1196" rx="280" ry="30" fill="#000" opacity=".1" filter="url(#blur8)"/>
+<path d="M960 1010 v150 a240 34 0 0 0 480 0 v-150z" fill="url(#stone)"/>
+<ellipse cx="1200" cy="1010" rx="240" ry="34" fill="#f0ebe2"/>
+<g transform="translate(320 270)">
+  <defs>
+    <linearGradient id="rliquid" x1="0" x2="1">
+      <stop offset="0" stop-color="#7e0a18"/>
+      <stop offset=".18" stop-color="#c51b2c"/>
+      <stop offset=".55" stop-color="#a90f22"/>
+      <stop offset=".88" stop-color="#c51b2c"/>
+      <stop offset="1" stop-color="#7e0a18"/>
+    </linearGradient>
+    <linearGradient id="rshine" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="rlabel" x1="0" x2="1">
+      <stop offset="0" stop-color="#ececea"/>
+      <stop offset=".12" stop-color="#fbfbfa"/>
+      <stop offset=".85" stop-color="#fbfbfa"/>
+      <stop offset="1" stop-color="#e6e6e3"/>
+    </linearGradient>
+    <radialGradient id="rshadow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#000" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+  </defs><ellipse cx="500" cy="796" rx="230" ry="28" fill="url(#rshadow)"/>
+  <g fill="#111">
+    <path d="M350 200 q-8 0 -8 -8 q0 -10 14 -12 L460 170 q12 -2 22 -2 h70 q14 0 14 14 v26 q0 10 -10 10 h-84 l-30 6 L360 202 q-4 1 -10 -2z"/>
+    <rect x="442" y="206" width="116" height="10" rx="3" fill="#1c1c1c"/>
+    <rect x="470" y="216" width="60" height="70" rx="4"/>
+    <rect x="438.0" y="286" width="124" height="80" rx="10"/>
+    <rect x="446.0" y="292" width="10" height="68" rx="5" fill="#2e2e2e" opacity=".9"/>
+  </g>
+  <rect x="330" y="370" width="340" height="420" rx="58" fill="url(#rliquid)"/>
+  <path d="M370 376 h260 q20 0 30 10 h-320 q10 -10 30 -10z" fill="#fff" opacity=".35"/><circle cx="535.8" cy="646.1" r="1.3" fill="#ffd0d6" opacity="0.49"/><circle cx="485.3" cy="540.9" r="1.7" fill="#ffd0d6" opacity="0.76"/><circle cx="360.7" cy="587.4" r="3.1" fill="#ffd0d6" opacity="0.57"/><circle cx="525.7" cy="481.6" r="1.5" fill="#ffd0d6" opacity="0.64"/><circle cx="468.0" cy="710.5" r="2.3" fill="#ffd0d6" opacity="0.66"/><circle cx="424.7" cy="405.0" r="1.8" fill="#ffd0d6" opacity="0.55"/><circle cx="377.7" cy="483.8" r="1.4" fill="#ffd0d6" opacity="0.46"/><circle cx="454.8" cy="467.2" r="2.7" fill="#ffd0d6" opacity="0.57"/><circle cx="412.9" cy="688.4" r="1.7" fill="#ffd0d6" opacity="0.69"/><circle cx="456.6" cy="544.0" r="1.8" fill="#ffd0d6" opacity="0.62"/><circle cx="526.5" cy="673.6" r="2.5" fill="#ffd0d6" opacity="0.53"/><circle cx="572.9" cy="626.3" r="2.9" fill="#ffd0d6" opacity="0.52"/><circle cx="648.7" cy="720.0" r="2.9" fill="#ffd0d6" opacity="0.50"/><circle cx="412.2" cy="583.3" r="1.6" fill="#ffd0d6" opacity="0.59"/><circle cx="385.2" cy="744.1" r="1.7" fill="#ffd0d6" opacity="0.44"/><circle cx="536.8" cy="519.0" r="2.2" fill="#ffd0d6" opacity="0.54"/><circle cx="636.6" cy="473.8" r="2.6" fill="#ffd0d6" opacity="0.59"/><circle cx="458.4" cy="408.6" r="2.9" fill="#ffd0d6" opacity="0.37"/><circle cx="443.4" cy="665.1" r="1.2" fill="#ffd0d6" opacity="0.57"/><circle cx="471.0" cy="765.4" r="2.8" fill="#ffd0d6" opacity="0.54"/><circle cx="376.4" cy="669.2" r="2.1" fill="#ffd0d6" opacity="0.45"/><circle cx="355.4" cy="474.3" r="2.3" fill="#ffd0d6" opacity="0.69"/><circle cx="349.6" cy="582.7" r="2.4" fill="#ffd0d6" opacity="0.51"/><circle cx="648.6" cy="404.5" r="1.4" fill="#ffd0d6" opacity="0.40"/><circle cx="593.0" cy="743.5" r="1.4" fill="#ffd0d6" opacity="0.72"/><circle cx="576.9" cy="678.4" r="1.5" fill="#ffd0d6" opacity="0.67"/><circle cx="462.3" cy="560.2" r="2.7" fill="#ffd0d6" opacity="0.69"/><circle cx="522.3" cy="416.8" r="2.4" fill="#ffd0d6" opacity="0.74"/><circle cx="433.0" cy="707.5" r="1.4" fill="#ffd0d6" opacity="0.58"/><circle cx="434.6" cy="388.2" r="1.5" fill="#ffd0d6" opacity="0.69"/><circle cx="564.6" cy="642.5" r="3.0" fill="#ffd0d6" opacity="0.75"/><circle cx="353.1" cy="749.3" r="1.6" fill="#ffd0d6" opacity="0.52"/><circle cx="349.3" cy="571.1" r="2.0" fill="#ffd0d6" opacity="0.50"/><circle cx="369.1" cy="609.8" r="1.9" fill="#ffd0d6" opacity="0.50"/><circle cx="568.3" cy="760.9" r="2.0" fill="#ffd0d6" opacity="0.71"/><circle cx="494.0" cy="491.4" r="2.1" fill="#ffd0d6" opacity="0.42"/><circle cx="398.7" cy="427.6" r="2.8" fill="#ffd0d6" opacity="0.74"/><circle cx="554.2" cy="676.7" r="1.5" fill="#ffd0d6" opacity="0.57"/><circle cx="385.7" cy="730.0" r="1.2" fill="#ffd0d6" opacity="0.75"/><circle cx="446.5" cy="471.8" r="2.6" fill="#ffd0d6" opacity="0.37"/><circle cx="342.7" cy="578.2" r="3.1" fill="#ffd0d6" opacity="0.77"/><circle cx="456.0" cy="634.7" r="2.8" fill="#ffd0d6" opacity="0.41"/><circle cx="525.6" cy="657.3" r="2.1" fill="#ffd0d6" opacity="0.35"/><circle cx="591.8" cy="605.6" r="1.2" fill="#ffd0d6" opacity="0.79"/><circle cx="656.9" cy="447.6" r="2.5" fill="#ffd0d6" opacity="0.38"/><circle cx="512.4" cy="532.0" r="2.5" fill="#ffd0d6" opacity="0.37"/><circle cx="567.1" cy="680.3" r="3.1" fill="#ffd0d6" opacity="0.74"/><circle cx="524.6" cy="669.7" r="2.3" fill="#ffd0d6" opacity="0.64"/><circle cx="652.0" cy="412.7" r="2.2" fill="#ffd0d6" opacity="0.49"/><circle cx="618.6" cy="552.6" r="1.6" fill="#ffd0d6" opacity="0.49"/><circle cx="465.7" cy="596.8" r="2.3" fill="#ffd0d6" opacity="0.53"/><circle cx="621.0" cy="475.0" r="2.1" fill="#ffd0d6" opacity="0.45"/><circle cx="654.6" cy="599.6" r="2.3" fill="#ffd0d6" opacity="0.59"/><circle cx="438.4" cy="602.6" r="2.8" fill="#ffd0d6" opacity="0.39"/><circle cx="557.3" cy="386.2" r="2.0" fill="#ffd0d6" opacity="0.74"/><circle cx="545.7" cy="473.8" r="3.2" fill="#ffd0d6" opacity="0.63"/><circle cx="536.9" cy="688.0" r="2.7" fill="#ffd0d6" opacity="0.67"/><circle cx="649.1" cy="537.2" r="2.4" fill="#ffd0d6" opacity="0.52"/><circle cx="619.4" cy="398.2" r="2.0" fill="#ffd0d6" opacity="0.53"/><circle cx="634.8" cy="581.5" r="1.4" fill="#ffd0d6" opacity="0.68"/><circle cx="534.4" cy="443.3" r="2.1" fill="#ffd0d6" opacity="0.68"/><circle cx="430.9" cy="620.2" r="2.8" fill="#ffd0d6" opacity="0.48"/><circle cx="525.9" cy="743.6" r="2.6" fill="#ffd0d6" opacity="0.53"/><circle cx="366.3" cy="621.4" r="2.3" fill="#ffd0d6" opacity="0.73"/><circle cx="486.5" cy="505.8" r="1.8" fill="#ffd0d6" opacity="0.60"/><circle cx="539.3" cy="473.4" r="3.0" fill="#ffd0d6" opacity="0.74"/><circle cx="433.1" cy="723.2" r="2.3" fill="#ffd0d6" opacity="0.77"/><circle cx="510.2" cy="593.0" r="2.6" fill="#ffd0d6" opacity="0.49"/><circle cx="373.8" cy="394.7" r="3.2" fill="#ffd0d6" opacity="0.71"/><circle cx="466.6" cy="488.5" r="3.0" fill="#ffd0d6" opacity="0.57"/><circle cx="633.4" cy="421.6" r="2.0" fill="#ffd0d6" opacity="0.62"/><circle cx="484.0" cy="511.8" r="2.2" fill="#ffd0d6" opacity="0.63"/><circle cx="560.3" cy="713.4" r="2.5" fill="#ffd0d6" opacity="0.62"/><circle cx="417.6" cy="762.5" r="2.7" fill="#ffd0d6" opacity="0.40"/><circle cx="585.5" cy="566.1" r="1.3" fill="#ffd0d6" opacity="0.49"/><circle cx="381.5" cy="677.8" r="3.2" fill="#ffd0d6" opacity="0.46"/><circle cx="602.8" cy="729.1" r="2.6" fill="#ffd0d6" opacity="0.72"/><circle cx="591.0" cy="533.9" r="2.9" fill="#ffd0d6" opacity="0.70"/><circle cx="465.9" cy="453.0" r="2.2" fill="#ffd0d6" opacity="0.58"/><circle cx="481.0" cy="723.4" r="2.4" fill="#ffd0d6" opacity="0.54"/><circle cx="477.0" cy="499.3" r="2.4" fill="#ffd0d6" opacity="0.69"/><circle cx="374.5" cy="447.0" r="2.9" fill="#ffd0d6" opacity="0.69"/><circle cx="604.0" cy="505.7" r="1.4" fill="#ffd0d6" opacity="0.43"/><circle cx="365.0" cy="603.7" r="1.7" fill="#ffd0d6" opacity="0.76"/><circle cx="400.3" cy="457.7" r="1.9" fill="#ffd0d6" opacity="0.35"/><circle cx="643.8" cy="660.8" r="2.3" fill="#ffd0d6" opacity="0.71"/><circle cx="530.2" cy="446.4" r="2.1" fill="#ffd0d6" opacity="0.74"/><circle cx="395.0" cy="486.4" r="2.5" fill="#ffd0d6" opacity="0.48"/><circle cx="497.6" cy="385.2" r="1.8" fill="#ffd0d6" opacity="0.72"/><circle cx="554.6" cy="453.0" r="2.0" fill="#ffd0d6" opacity="0.77"/><circle cx="464.9" cy="722.2" r="2.4" fill="#ffd0d6" opacity="0.72"/><circle cx="516.8" cy="734.3" r="2.4" fill="#ffd0d6" opacity="0.40"/><circle cx="450.5" cy="543.4" r="1.9" fill="#ffd0d6" opacity="0.48"/><circle cx="454.0" cy="652.3" r="3.0" fill="#ffd0d6" opacity="0.55"/><circle cx="561.9" cy="411.9" r="1.8" fill="#ffd0d6" opacity="0.37"/><circle cx="438.0" cy="637.9" r="2.2" fill="#ffd0d6" opacity="0.61"/><circle cx="358.7" cy="439.2" r="1.4" fill="#ffd0d6" opacity="0.77"/><circle cx="440.6" cy="456.6" r="1.6" fill="#ffd0d6" opacity="0.67"/><circle cx="510.0" cy="501.0" r="2.5" fill="#ffd0d6" opacity="0.52"/><circle cx="377.7" cy="715.0" r="1.2" fill="#ffd0d6" opacity="0.38"/><circle cx="563.3" cy="740.6" r="2.6" fill="#ffd0d6" opacity="0.59"/><circle cx="430.4" cy="559.5" r="1.2" fill="#ffd0d6" opacity="0.70"/><circle cx="505.4" cy="713.2" r="2.5" fill="#ffd0d6" opacity="0.69"/><circle cx="650.7" cy="672.7" r="2.0" fill="#ffd0d6" opacity="0.46"/><circle cx="522.0" cy="391.0" r="2.7" fill="#ffd0d6" opacity="0.57"/><circle cx="377.0" cy="561.4" r="2.7" fill="#ffd0d6" opacity="0.48"/><circle cx="589.1" cy="768.2" r="1.2" fill="#ffd0d6" opacity="0.65"/><circle cx="403.0" cy="666.7" r="3.1" fill="#ffd0d6" opacity="0.73"/><circle cx="502.9" cy="509.6" r="1.5" fill="#ffd0d6" opacity="0.61"/><circle cx="393.1" cy="772.9" r="1.4" fill="#ffd0d6" opacity="0.46"/>
+  <rect x="354" y="440" width="292" height="302" rx="6" fill="url(#rlabel)"/>
+  <rect x="346" y="400" width="16" height="360" rx="8" fill="url(#rshine)" opacity=".7"/>
+  <g fill="#1b1b1b" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <text x="374" y="480" font-size="16" font-weight="700" letter-spacing="1.2">GRACE AND GLOW</text>
+    <text x="374" y="498" font-size="7.5" letter-spacing="1.4">FOR ELEGANCE ONLY</text>
+    <text x="626" y="590" text-anchor="end" font-size="13.5" font-weight="700" letter-spacing="1.1">ROUGE 540</text>
+    <text x="626" y="609" text-anchor="end" font-size="13.5" font-weight="700" letter-spacing="1.1">GLOW &amp; FIRM</text>
+    <text x="626" y="628" text-anchor="end" font-size="13.5" font-weight="700" letter-spacing="1.1">SCRUB SOLUTION</text>
+    <text x="626" y="647" text-anchor="end" font-size="13.5" font-weight="700" letter-spacing="1.1">BODY WASH</text>
+    <text x="626" y="676" text-anchor="end" font-size="8.5" fill="#444">With Niacinamide</text>
+    <text x="626" y="688" text-anchor="end" font-size="8.5" fill="#444">and Collagen</text>
+    <text x="626" y="700" text-anchor="end" font-size="8.5" fill="#444">for glow and firm skin</text>
+    <text x="626" y="724" text-anchor="end" font-size="8" font-weight="700" letter-spacing=".6">400 ML  13.53 FL OZ</text>
+  </g>
+
+</g>
+<g transform="translate(1080 270)">
+  <defs>
+    <linearGradient id="yliquid" x1="0" x2="1">
+      <stop offset="0" stop-color="#d9860a"/>
+      <stop offset=".18" stop-color="#f6b21c"/>
+      <stop offset=".55" stop-color="#f0a10e"/>
+      <stop offset=".88" stop-color="#f6b21c"/>
+      <stop offset="1" stop-color="#d9860a"/>
+    </linearGradient>
+    <linearGradient id="yshine" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="ylabel" x1="0" x2="1">
+      <stop offset="0" stop-color="#ececea"/>
+      <stop offset=".12" stop-color="#fbfbfa"/>
+      <stop offset=".85" stop-color="#fbfbfa"/>
+      <stop offset="1" stop-color="#e6e6e3"/>
+    </linearGradient>
+    <radialGradient id="yshadow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#000" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+  </defs><ellipse cx="500" cy="796" rx="230" ry="28" fill="url(#yshadow)"/>
+  <g fill="#111">
+    <path d="M350 200 q-8 0 -8 -8 q0 -10 14 -12 L460 170 q12 -2 22 -2 h70 q14 0 14 14 v26 q0 10 -10 10 h-84 l-30 6 L360 202 q-4 1 -10 -2z"/>
+    <rect x="442" y="206" width="116" height="10" rx="3" fill="#1c1c1c"/>
+    <rect x="470" y="216" width="60" height="70" rx="4"/>
+    <rect x="438.0" y="286" width="124" height="80" rx="10"/>
+    <rect x="446.0" y="292" width="10" height="68" rx="5" fill="#2e2e2e" opacity=".9"/>
+  </g>
+  <rect x="330" y="370" width="340" height="420" rx="58" fill="url(#yliquid)"/>
+  <path d="M370 376 h260 q20 0 30 10 h-320 q10 -10 30 -10z" fill="#fff" opacity=".35"/>
+  <rect x="354" y="440" width="292" height="302" rx="6" fill="url(#ylabel)"/>
+  <rect x="346" y="400" width="16" height="360" rx="8" fill="url(#yshine)" opacity=".7"/>
+  <g fill="#1b1b1b" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <text x="374" y="480" font-size="16" font-weight="700" letter-spacing="1.2">GRACE AND GLOW</text>
+    <text x="374" y="498" font-size="7.5" letter-spacing="1.4">FOR ELEGANCE ONLY</text>
+    <text x="626" y="590" text-anchor="end" font-size="13.5" font-weight="700" letter-spacing="1.1">ENGLISH PEAR</text>
+    <text x="626" y="609" text-anchor="end" font-size="13.5" font-weight="700" letter-spacing="1.1">AND FREESIA</text>
+    <text x="626" y="628" text-anchor="end" font-size="13.5" font-weight="700" letter-spacing="1.1">ANTI ACNE SOLUTION</text>
+    <text x="626" y="647" text-anchor="end" font-size="13.5" font-weight="700" letter-spacing="1.1">BODY WASH</text>
+    <text x="626" y="676" text-anchor="end" font-size="8.5" fill="#444">With AHA BHA PHA</text>
+    <text x="626" y="688" text-anchor="end" font-size="8.5" fill="#444">and Centella Asiatica</text>
+    <text x="626" y="700" text-anchor="end" font-size="8.5" fill="#444">for acne and pore care</text>
+    <text x="626" y="724" text-anchor="end" font-size="8" font-weight="700" letter-spacing=".6">400 ML  13.53 FL OZ</text>
+  </g>
+
+</g>
+<g transform="translate(700 150)">
+  <defs>
+    <linearGradient id="aliquid" x1="0" x2="1">
+      <stop offset="0" stop-color="#9f84d8"/>
+      <stop offset=".18" stop-color="#c7b2f2"/>
+      <stop offset=".55" stop-color="#b89cec"/>
+      <stop offset=".88" stop-color="#c7b2f2"/>
+      <stop offset="1" stop-color="#9f84d8"/>
+    </linearGradient>
+    <linearGradient id="ashine" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="alabel" x1="0" x2="1">
+      <stop offset="0" stop-color="#ececea"/>
+      <stop offset=".12" stop-color="#fbfbfa"/>
+      <stop offset=".85" stop-color="#fbfbfa"/>
+      <stop offset="1" stop-color="#e6e6e3"/>
+    </linearGradient>
+    <radialGradient id="ashadow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#000" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+  </defs><ellipse cx="500" cy="866" rx="190" ry="26" fill="url(#ashadow)"/>
+  <g fill="#111">
+    <path d="M350 130 q-8 0 -8 -8 q0 -10 14 -12 L460 100 q12 -2 22 -2 h70 q14 0 14 14 v26 q0 10 -10 10 h-84 l-30 6 L360 132 q-4 1 -10 -2z"/>
+    <rect x="442" y="136" width="116" height="10" rx="3" fill="#1c1c1c"/>
+    <rect x="470" y="146" width="60" height="70" rx="4"/>
+    <rect x="440.0" y="216" width="120" height="80" rx="10"/>
+    <rect x="448.0" y="222" width="10" height="68" rx="5" fill="#2e2e2e" opacity=".9"/>
+  </g>
+  <rect x="370" y="300" width="260" height="560" rx="16" fill="url(#aliquid)"/>
+  <rect x="370" y="300" width="260" height="22" rx="10" fill="#d8cbf6" opacity=".9"/>
+  <rect x="497" y="320" width="6" height="520" fill="#fff" opacity=".28"/>
+  <rect x="396" y="320" width="22" height="520" rx="11" fill="url(#ashine)" opacity=".8"/>
+  <rect x="600" y="320" width="8" height="520" rx="4" fill="#fff" opacity=".25"/>
+  <g fill="#2a2440">
+    <text x="394" y="428" font-family="Didot, 'Bodoni 72', Georgia, 'Times New Roman', serif" font-size="23" letter-spacing=".3">BRIGHTENING</text>
+    <text x="394" y="460" font-family="Didot, 'Bodoni 72', Georgia, 'Times New Roman', serif" font-size="23" letter-spacing=".3">&amp; REFRESHING</text>
+    <text x="394" y="492" font-family="Didot, 'Bodoni 72', Georgia, 'Times New Roman', serif" font-size="23" letter-spacing=".3">BODY WASH</text>
+    <rect x="394" y="510" width="212" height="1.5"/>
+    <text font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="8" letter-spacing=".1">
+      <tspan x="394" y="530" font-weight="700">WITH NIACINAMIDE, VITAMIN C AND COLLAGEN</tspan>
+      <tspan x="394" y="544">GIVES YOU RADIANT, BRIGHT SKIN BY REPAIRING</tspan>
+      <tspan x="394" y="558">THE NOURISHES MOISTURE BARRIER AND</tspan>
+      <tspan x="394" y="572">BRIGHTENING THE SKIN.</tspan>
+    </text>
+    <rect x="394" y="586" width="212" height="1.5"/>
+    <text x="394" y="616" font-family="Didot, 'Bodoni 72', Georgia, 'Times New Roman', serif" font-size="15">℮ 400g/13.5fl.oz</text>
+    <text x="500" y="804" text-anchor="middle" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="800" font-size="40" letter-spacing="1" fill="#111">ATHENA<tspan font-size="12" dy="-22">®</tspan></text>
+  </g>
+
+</g>
+</svg>

@@ -1,0 +1,356 @@
+---
+/**
+ * Footer — a charcoal rounded panel like the reference: TikTok call to action,
+ * business contact card, quick links, the oversized wordmark and legal line.
+ * Contact details live in src/config/site.ts → contact.
+ */
+import { site } from '../config/site';
+import { isUsableUrl, external, contactRows } from '../lib/links';
+import Pill from './Pill.astro';
+
+const year = new Date().getFullYear();
+const hasProfile = isUsableUrl(site.tiktokProfileUrl);
+const rows = contactRows(site.contact);
+const links = [...site.nav, ...site.footerNav];
+---
+
+<footer class="footer">
+  <div class="footer__panel">
+    <div class="footer__top">
+      <div class="footer__cta">
+        <h2 class="display footer__title">Follow along on TikTok</h2>
+        <p class="footer__lede">Every find here started as a video. Watch them all on @{site.tiktokHandle}.</p>
+        {
+          hasProfile ? (
+            <Pill href={site.tiktokProfileUrl} kind="external" variant="light" label={`Follow @${site.tiktokHandle}`} />
+          ) : (
+            <Pill label="" kind="external" variant="light" unavailableLabel="Profile link coming soon" />
+          )
+        }
+      </div>
+
+      <section class="contact" aria-labelledby="contact-title">
+        <h2 id="contact-title" class="contact__title">{site.contact.heading}</h2>
+        <p class="contact__text">{site.contact.text}</p>
+        <ul role="list" class="contact__list">
+          {
+            rows.map((row) => (
+              <li>
+                {row.href ? (
+                  <a class="contact__row" href={row.href} {...(row.newTab ? external : {})}>
+                    <span class="contact__label">{row.label}</span>
+                    <span class="contact__value">{row.value}</span>
+                    <svg class="contact__arrow" viewBox="0 0 8 10" width="7" height="9" aria-hidden="true">
+                      <path d="M0 0v10l8-5z" fill="currentColor" />
+                    </svg>
+                    {row.newTab && <span class="visually-hidden"> (opens in a new tab)</span>}
+                  </a>
+                ) : (
+                  <span class="contact__row contact__row--placeholder">
+                    <span class="contact__label">{row.label}</span>
+                    <span class="contact__value">{row.value}</span>
+                  </span>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+
+    <nav class="footer__links" aria-label="Footer">
+      <ul role="list">
+        {
+          links.map((item) => (
+            <li>
+              <a href={item.href}>
+                <span class="roll">
+                  <span class="roll__text" data-text={item.label}>
+                    {item.label}
+                  </span>
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a class="footer__top-link" href="#top">
+        <span class="roll"><span class="roll__text" data-text="Back to top">Back to top</span></span>
+        <svg viewBox="0 0 10 8" width="10" height="8" aria-hidden="true"><path d="M5 0l5 8H0z" fill="currentColor"></path></svg>
+      </a>
+    </nav>
+
+    <!-- Slow marquee of the wordmark, alternating solid and outline. Decorative: the name is in the copy above. -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        {
+          [0, 1].map(() => (
+            <div class="marquee__group">
+              {[0, 1, 2, 3].map((i) => (
+                <span class:list={['marquee__item', i % 2 === 1 && 'is-outline']}>
+                  {site.brandName}
+                  <span class="marquee__dot" />
+                </span>
+              ))}
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <p>© {year} {site.brandName}. All purchases are completed on TikTok Shop.</p>
+      <p>{site.brandName} is an independent creator site, not affiliated with or endorsed by TikTok.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    padding: 0 var(--gutter) var(--gutter);
+  }
+  .footer__panel {
+    --panel-card: #34362f;
+    --on-panel-muted: rgb(255 255 255 / 0.66);
+    --hairline: rgb(255 255 255 / 0.12);
+    max-width: var(--page-max);
+    margin-inline: auto;
+    padding: 36px 20px 18px;
+    border-radius: var(--radius-block);
+    background: var(--color-ink);
+    color: var(--color-on-dark);
+    overflow: hidden;
+  }
+
+  .footer__top {
+    display: grid;
+    gap: 32px;
+  }
+  .footer__cta {
+    display: grid;
+    gap: 14px;
+    justify-items: start;
+    align-content: start;
+  }
+  .footer__title {
+    font-size: var(--h2);
+    max-width: 12ch;
+  }
+  .footer__lede {
+    max-width: 38ch;
+    margin-bottom: 8px;
+    color: var(--on-panel-muted);
+    line-height: 1.55;
+  }
+  .footer :global(.pill--light) {
+    --pill-fill: var(--color-accent);
+    --pill-fg-hover: var(--color-on-accent);
+  }
+  .footer :global(.pill--unavailable) {
+    --pill-fg: var(--on-panel-muted);
+    --pill-border: rgb(255 255 255 / 0.28);
+  }
+
+  /* Business contact card */
+  .contact {
+    padding: 24px 8px 8px;
+    border-radius: 22px;
+    background: var(--panel-card);
+  }
+  .contact__title,
+  .contact__text {
+    padding-inline: 14px;
+  }
+  .contact__title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .contact__text {
+    margin-top: 6px;
+    color: var(--on-panel-muted);
+    font-size: var(--text-sm);
+  }
+  .contact__list {
+    margin-top: 14px;
+  }
+  .contact__list li + li {
+    border-top: 1px solid var(--hairline);
+  }
+  .contact__row {
+    display: grid;
+    grid-template-columns: 84px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    padding: 0 14px;
+    border-radius: 14px;
+    text-decoration: none;
+    transition: background-color var(--dur) var(--ease-out);
+  }
+  a.contact__row:hover {
+    background: rgb(255 255 255 / 0.06);
+  }
+  .contact__label {
+    color: var(--on-panel-muted);
+    font-size: var(--text-sm);
+  }
+  .contact__value {
+    min-width: 0;
+    overflow-wrap: break-word;
+    font-size: var(--text-base);
+    font-weight: 500;
+  }
+  .contact__row--placeholder .contact__value {
+    color: var(--on-panel-muted);
+    font-weight: 400;
+  }
+  .contact__arrow {
+    color: var(--on-panel-muted);
+    transition: transform var(--dur) var(--ease-out);
+  }
+  a.contact__row:hover .contact__arrow {
+    transform: translateX(3px);
+    color: var(--color-on-dark);
+  }
+
+  /* Small phones: label above the value so long emails stay on one line */
+  @media (max-width: 479px) {
+    .contact__row {
+      grid-template-columns: 1fr auto;
+      grid-template-areas: 'label arrow' 'value arrow';
+      row-gap: 2px;
+      padding-block: 10px;
+    }
+    .contact__label {
+      grid-area: label;
+      font-size: var(--text-xs);
+    }
+    .contact__value {
+      grid-area: value;
+    }
+    .contact__arrow {
+      grid-area: arrow;
+    }
+  }
+
+  /* Quick links */
+  .footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 24px;
+    margin-top: 36px;
+    padding-block: 10px;
+    border-block: 1px solid var(--hairline);
+  }
+  .footer__links ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 24px;
+  }
+  .footer__links a,
+  .footer__top-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  /* Slow marquee — runs edge to edge of the panel, never pauses */
+  .marquee {
+    margin: 28px -20px 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee 48s linear infinite;
+  }
+  .marquee__group {
+    display: flex;
+    gap: 0.32em;
+    padding-right: 0.32em;
+  }
+  .marquee__item {
+    display: inline-flex;
+    align-items: baseline;
+    padding: 0.04em 0.02em 0.12em;
+    font-family: 'Instrument Serif', 'Times New Roman', serif;
+    font-size: clamp(5.5rem, 2rem + 18vw, 17rem);
+    font-style: italic;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+    white-space: nowrap;
+  }
+  .marquee__item.is-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgb(255 255 255 / 0.55);
+  }
+  .marquee__dot {
+    display: inline-block;
+    width: 0.145em;
+    height: 0.145em;
+    margin-left: 0.035em;
+    border-radius: 50%;
+    background: var(--color-accent);
+  }
+  .is-outline .marquee__dot {
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--color-accent);
+  }
+  @keyframes marquee {
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+    }
+  }
+
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 24px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--hairline);
+    color: var(--on-panel-muted);
+    font-size: var(--text-xs);
+    line-height: 1.5;
+  }
+
+  .footer :global(:focus-visible) {
+    outline-color: var(--color-on-dark);
+  }
+
+  @media (min-width: 900px) {
+    .footer__panel {
+      padding: 64px 56px 24px;
+    }
+    .footer__top {
+      grid-template-columns: 1fr minmax(360px, 460px);
+      gap: 64px;
+      align-items: start;
+    }
+    .contact {
+      padding: 28px 10px 10px;
+    }
+    .footer__links {
+      margin-top: 56px;
+    }
+    .marquee {
+      margin-inline: -56px;
+      margin-top: 40px;
+    }
+  }
+</style>

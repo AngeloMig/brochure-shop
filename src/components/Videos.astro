@@ -1,0 +1,30 @@
+---
+import { site } from '../config/site';
+import { videos } from '../lib/catalog';
+import { isUsableUrl, external } from '../lib/links';
+import SectionHead from './SectionHead.astro';
+import Carousel from './Carousel.astro';
+import VideoCard from './VideoCard.astro';
+import Pill from './Pill.astro';
+---
+
+{
+  videos.length > 0 && (
+    <section id="videos" class="section" aria-labelledby="videos-title">
+      <div class="container">
+        <SectionHead id="videos-title" heading={site.videos.heading} text={site.videos.text}>
+          {isUsableUrl(site.tiktokProfileUrl) ? (
+            <Pill href={site.tiktokProfileUrl} kind="external" label={`Follow @${site.tiktokHandle}`} variant="secondary" />
+          ) : (
+            <Pill label="" kind="external" variant="secondary" unavailableLabel="Profile link coming soon" />
+          )}
+        </SectionHead>
+        <Carousel label="TikTok videos" perView={[1.65, 3.2, 5]}>
+          {videos.map((video) => (
+            <VideoCard video={video} />
+          ))}
+        </Carousel>
+      </div>
+    </section>
+  )
+}

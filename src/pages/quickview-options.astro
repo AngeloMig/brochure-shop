@@ -1,0 +1,3253 @@
+---
+import { withBase } from '../lib/paths';
+/**
+ * Preview page: ten improved quick-view popup concepts to choose from.
+ * Visit /quickview-options. Not linked from the site and hidden from search.
+ *
+ * Every option has a live popup ("Open preview", a real <dialog>) filled with
+ * the Athena body wash, plus a phone + desktop mock of its open state. The
+ * mocks are this same page loaded at ?mock=<n>, which shows option n open over
+ * a faux catalog — so they always match the live popup exactly.
+ * Once one is chosen it moves into QuickView.astro and this page can be deleted.
+ */
+import '@fontsource/instrument-serif/latin-400-italic.css';
+import Base from '../layouts/Base.astro';
+import Pill from '../components/Pill.astro';
+import CurrencySwitch from '../components/CurrencySwitch.astro';
+import { products } from '../data/products';
+import { videos } from '../data/videos';
+import { imageAttrs } from '../lib/images';
+import { site } from '../config/site';
+
+const byId = (id: string) => products.find((x) => x.id === id)!;
+const p = byId('athena-body-wash');
+const usd = p.price ?? 0;
+const phpFmt = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
+const priceText = (v: number) => `≈ ${phpFmt.format(v * site.currency.usdToPhp)}`;
+const price = priceText(usd);
+
+/** TEST links for the preview — the real popup uses each product's affiliate link. */
+const TEST_LINK = 'https://www.tiktok.com/shop';
+const VIDEO_LINK = 'https://www.tiktok.com/';
+const NOTE = 'Sample price · final price on TikTok';
+
+const img = withBase(p.image);
+const alt = p.imageAlt ?? p.name;
+const ingredients = ['Niacinamide', 'Vitamin C', 'Collagen'];
+const size = '400 g · 13.5 fl oz';
+// Placeholder copy for the editorial option — replace with your own words.
+const quote = 'The one bottle I keep repurchasing: a clean lavender scent, and skin that feels soft, never tight.';
+
+const clips = ['candle-evening', 'bedroom-refresh']
+  .map((id) => videos.find((v) => v.id === id)!)
+  .map((v) => ({ caption: v.caption, thumb: imageAttrs(v.thumbnail, { ratio: 9 / 16, widths: [160] })?.src ?? '' }));
+
+/** Gallery-first option: close-ups are crops of the one product photo (origin x/y, scale). */
+const shots = [
+  { label: 'Front', zx: '50%', zy: '50%', zs: 1 },
+  { label: 'Label', zx: '50%', zy: '44%', zs: 2.3 },
+  { label: 'Ingredients', zx: '50%', zy: '54%', zs: 3 },
+  { label: 'Pump', zx: '44%', zy: '14%', zs: 2.6 },
+];
+
+/** Related-finds option: the current product plus four others it can swap to in place. */
+const finds = ['athena-body-wash', 'grace-glow-rouge-540', 'grace-glow-english-pear', 'hand-cream', 'sage-bottle']
+  .map(byId)
+  .map((x) => {
+    const a = imageAttrs(x.image, { ratio: 1, widths: [240, 480, 800] })!;
+    return {
+      id: x.id,
+      name: x.name,
+      category: x.category,
+      description: x.description,
+      price: x.price ?? 0,
+      src: a.src,
+      srcset: a.srcset ?? '',
+      alt: x.imageAlt ?? x.name,
+    };
+  });
+const findsJson = JSON.stringify(finds).replace(/</g, '\\u003c');
+
+const ico = {
+  close:
+    '<svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M1 1l12 12M13 1 1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  link: '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M6.6 9.4a3 3 0 0 0 4.3 0l2.2-2.2a3 3 0 0 0-4.3-4.3l-.9.9M9.4 6.6a3 3 0 0 0-4.3 0L2.9 8.8a3 3 0 0 0 4.3 4.3l.9-.9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  play: '<svg viewBox="0 0 8 10" width="8" height="10" aria-hidden="true"><path d="M0 0v10l8-5z" fill="currentColor"/></svg>',
+  prev: '<svg viewBox="0 0 8 10" width="7" height="9" aria-hidden="true"><path d="M8 0v10L0 5z" fill="currentColor"/></svg>',
+  shield:
+    '<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 1.5 2.5 3.6v4c0 3.3 2.3 5.9 5.5 6.9 3.2-1 5.5-3.6 5.5-6.9v-4L8 1.5Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="m5.6 8 1.7 1.7 3.2-3.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  up: '<svg viewBox="0 0 10 8" width="10" height="8" aria-hidden="true"><path d="M0 8h10L5 0z" fill="currentColor"/></svg>',
+};
+
+const options = [
+  {
+    n: 1,
+    name: 'Refined drawer',
+    note: 'Today’s drawer, tightened. The price and the TikTok button sit together in a pinned bar, so the next step is always one tap away. The duplicate name in the header is gone, and the affiliate note says what it means.',
+    tags: ['Speed to TikTok', 'Price clarity'],
+    phone: 'Bottom sheet',
+    desk: 'Right drawer',
+  },
+  {
+    n: 2,
+    name: 'Split view',
+    note: 'On desktop the photo takes half the popup and the details sit beside it, like a mini product page that never leaves the catalog. Adds size and key ingredients, plus a short “how buying works” answer.',
+    tags: ['Desktop clarity', 'Trust'],
+    phone: 'Tall sheet',
+    desk: 'Split modal',
+  },
+  {
+    n: 3,
+    name: 'Immersive',
+    note: 'The photo fills the screen and the details card slides up over it as you scroll, like a shopping app. On desktop the card floats over a full-bleed photo.',
+    tags: ['Visual impact', 'App feel'],
+    phone: 'Full screen',
+    desk: 'Full-bleed modal',
+  },
+  {
+    n: 4,
+    name: 'Watch & shop',
+    note: 'Your TikTok review sits right next to the product, so visitors can see it in use before they tap through. Two clear actions: watch the review, or view it on TikTok.',
+    tags: ['Trust', 'Creator voice'],
+    phone: 'Bottom sheet',
+    desk: 'Video + details',
+  },
+  {
+    n: 5,
+    name: 'Gallery first',
+    note: 'A big swipeable photo with a thumbnail rail and tap-to-zoom, for reading labels and ingredients up close. Close-ups here are crops of the one Athena photo.',
+    tags: ['Detail', 'Confidence'],
+    phone: 'Full screen',
+    desk: 'Gallery modal',
+  },
+  {
+    n: 6,
+    name: 'Snap sheet',
+    note: 'Opens as a short “peek” with just the name, price and TikTok button, all within thumb reach. Drag the handle up (or tap More details) for the full story; drag down to close.',
+    tags: ['Thumb reach', 'Speed to TikTok'],
+    phone: 'Peek sheet',
+    desk: 'Peek sheet',
+  },
+  {
+    n: 7,
+    name: 'Editorial',
+    note: 'Magazine style: a large italic serif name, a “Why it’s in my picks” pull quote and ingredient chips. Reads like a personal recommendation, not a listing. The quote is placeholder text.',
+    tags: ['Personality', 'Trust'],
+    phone: 'Tall sheet',
+    desk: 'Magazine spread',
+  },
+  {
+    n: 8,
+    name: 'Related finds',
+    note: 'Keeps people browsing: a “You might also like” row under the product. Tapping one swaps it in place, without closing the popup.',
+    tags: ['Discovery', 'Time on site'],
+    phone: 'Bottom sheet',
+    desk: 'Centered modal',
+  },
+  {
+    n: 9,
+    name: 'Minimal peek',
+    note: 'A small card with one photo, the price and the button. The fastest path to TikTok, for visitors who already know what they want.',
+    tags: ['Speed to TikTok', 'Focus'],
+    phone: 'Floating card',
+    desk: 'Small card',
+  },
+  {
+    n: 10,
+    name: 'Dark luxe',
+    note: 'Charcoal panel, white type and sage accents. A premium, after-dark take where the product photo glows like a gallery piece.',
+    tags: ['Premium feel', 'Contrast'],
+    phone: 'Dark sheet',
+    desk: 'Dark card',
+  },
+];
+---
+
+<Base noindex title="Quick view options — bea">
+  <script is:inline>
+    // ?mock=<n> renders one option open over a faux catalog (used by the preview frames).
+    if (/[?&]mock=\d+/.test(location.search)) document.documentElement.classList.add('is-mock');
+  </script>
+
+  <div class="qo">
+    <header class="qo-head">
+      <p class="eyebrow">Preview</p>
+      <h1 class="display qo-title">Quick view — 10 options</h1>
+      <p class="lede">
+        Each one keeps the essentials: name, price in pesos with the “final price on TikTok” note, a clear View on
+        TikTok button and the affiliate note. Tap <strong>Open preview</strong> to try it for real (on your phone too),
+        then tell me the number you like.
+      </p>
+    </header>
+
+    <nav class="qo-jump" aria-label="Jump to option">
+      {options.map((o) => <a href={`#option-${o.n}`}>{o.n}</a>)}
+    </nav>
+
+    {
+      options.map((o) => (
+        <section class="qo-opt" id={`option-${o.n}`} aria-labelledby={`qo-name-${o.n}`}>
+          <div class="qo-opt__meta">
+            <h2 id={`qo-name-${o.n}`} class="qo-opt__name">
+              <span class="qo-opt__num">{o.n}</span> {o.name}
+            </h2>
+            <p class="qo-opt__note">{o.note}</p>
+            <ul class="qo-opt__tags" role="list" aria-label="Improves">
+              {o.tags.map((t) => (
+                <li>{t}</li>
+              ))}
+            </ul>
+            <button class="qo-open" type="button" data-open={o.n} aria-haspopup="dialog">
+              Open preview
+              <Fragment set:html={ico.play} />
+            </button>
+          </div>
+
+          <div class="qo-stage" data-open={o.n} aria-hidden="true">
+            <figure class="qo-dev qo-dev--phone">
+              <div class="qo-dev__bezel">
+                <div class="qo-dev__screen" data-w="390" style="--w:390;--h:844">
+                  <iframe data-src={withBase(`/quickview-options/?mock=${o.n}`)} title="" tabindex="-1" inert />
+                </div>
+              </div>
+              <figcaption>Phone · {o.phone}</figcaption>
+            </figure>
+            <figure class="qo-dev qo-dev--desk">
+              <div class="qo-dev__bezel">
+                <span class="qo-dev__bar">
+                  <i />
+                  <i />
+                  <i />
+                </span>
+                <div class="qo-dev__screen" data-w="1440" style="--w:1440;--h:900">
+                  <iframe data-src={withBase(`/quickview-options/?mock=${o.n}`)} title="" tabindex="-1" inert />
+                </div>
+              </div>
+              <figcaption>Desktop · {o.desk}</figcaption>
+            </figure>
+          </div>
+        </section>
+      ))
+    }
+  </div>
+
+  <!-- Faux catalog behind the popup in ?mock mode -->
+  <div class="qo-mockbg" aria-hidden="true">
+    <div class="qo-mockbg__bar">
+      <span class="qo-mockbg__mark">bea<i></i></span>
+      <span class="qo-mockbg__nav"><span>Finds</span><span>Videos</span><span>About</span></span>
+    </div>
+    <p class="display qo-mockbg__h">Top picks right now</p>
+    <div class="qo-mockbg__grid">
+      {
+        finds.slice(0, 4).map((f) => (
+          <div class="qo-mockbg__card">
+            <div class="qo-mockbg__img">
+              <img src={f.src} alt="" />
+            </div>
+            <p>{f.name}</p>
+            <p class="qo-mockbg__price">{priceText(f.price)}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+  <div class="qo-scrim" aria-hidden="true"></div>
+
+  <!-- ─────────────────────────── 1 · Refined drawer ─────────────────────────── -->
+  <dialog class="qx qx--sheet v1" id="qx-1" aria-labelledby="v1-title">
+    <span class="qx-grab v1__grab" aria-hidden="true"></span>
+    <div class="v1__head">
+      <p class="v1__crumbs"><span class="qx-chip">{p.category}</span><span>{p.badge}</span></p>
+      <button class="qx-close" type="button" data-share aria-label="Copy link to this find">
+        <Fragment set:html={ico.link} />
+      </button>
+      <button class="qx-close" type="button" data-close aria-label="Close quick view">
+        <Fragment set:html={ico.close} />
+      </button>
+    </div>
+    <div class="v1__body" data-reset-scroll>
+      <div class="qx-panel v1__panel">
+        <img src={img} alt={alt} loading="lazy" />
+      </div>
+      <h2 id="v1-title" class="display qx-title v1__title">{p.name}</h2>
+      <p class="qx-desc v1__desc">{p.description}</p>
+      <ul class="qx-tags v1__tags" role="list" aria-label="Key ingredients">
+        {ingredients.map((i) => <li>{i}</li>)}
+      </ul>
+      <div class="v1__currency">
+        <span>Show prices in</span>
+        <CurrencySwitch />
+      </div>
+      <div class="qx-vids">
+        <p class="qx-label">From my TikTok</p>
+        <ul role="list">
+          {
+            clips.map((c) => (
+              <li>
+                <a class="qx-vid" href={VIDEO_LINK} target="_blank" rel="noopener">
+                  <img src={c.thumb} alt="" loading="lazy" />
+                  <span class="qx-vid__text">
+                    <span>{c.caption}</span>
+                    <span class="qx-vid__action">
+                      Watch on TikTok<span class="visually-hidden"> (opens in a new tab)</span>
+                    </span>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+    <div class="v1__foot">
+      <div class="v1__price">
+        <p class="qx-price"><span data-price-usd={usd}>{price}</span></p>
+        <p class="qx-pnote">Final price on TikTok</p>
+      </div>
+      <div class="qx-cta"><Pill href={TEST_LINK} kind="affiliate" label="View on TikTok" block srContext={p.name} /></div>
+      <p class="qx-aff v1__aff">Affiliate link · I may earn a small commission, at no extra cost to you</p>
+    </div>
+  </dialog>
+
+  <!-- ─────────────────────────── 2 · Split view ─────────────────────────── -->
+  <dialog class="qx qx--sheet v2" id="qx-2" aria-labelledby="v2-title">
+    <button class="qx-close qx-close--float v2__x" type="button" data-close aria-label="Close quick view">
+      <Fragment set:html={ico.close} />
+    </button>
+    <div class="v2__main" data-reset-scroll>
+      <div class="v2__media">
+        <img src={img} alt={alt} loading="lazy" />
+        <span class="qx-badge">{p.badge}</span>
+      </div>
+      <div class="v2__info" data-reset-scroll>
+        <p class="qx-chip">{p.category}</p>
+        <h2 id="v2-title" class="display qx-title v2__title">{p.name}</h2>
+        <div class="v2__price-row">
+          <div>
+            <p class="qx-price v2__price"><span data-price-usd={usd}>{price}</span></p>
+            <p class="qx-pnote">{NOTE}</p>
+          </div>
+          <CurrencySwitch />
+        </div>
+        <p class="qx-desc">{p.description}</p>
+        <dl class="v2__facts">
+          <div><dt>Size</dt><dd>{size}</dd></div>
+          <div><dt>Key ingredients</dt><dd>{ingredients.join(', ')}</dd></div>
+          <div><dt>Category</dt><dd>{p.category}</dd></div>
+        </dl>
+        <details class="v2__how">
+          <summary>How buying works</summary>
+          <p>
+            View on TikTok opens this find in TikTok Shop. Checkout, shipping and returns are all handled there — this
+            site never takes payment.
+          </p>
+        </details>
+        <div class="qx-vids">
+          <p class="qx-label">From my TikTok</p>
+          <ul role="list">
+            {
+              clips.map((c) => (
+                <li>
+                  <a class="qx-vid" href={VIDEO_LINK} target="_blank" rel="noopener">
+                    <img src={c.thumb} alt="" loading="lazy" />
+                    <span class="qx-vid__text">
+                      <span>{c.caption}</span>
+                      <span class="qx-vid__action">
+                        Watch on TikTok<span class="visually-hidden"> (opens in a new tab)</span>
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+      <div class="v2__foot">
+        <div class="qx-cta"><Pill href={TEST_LINK} kind="affiliate" label="View on TikTok" block srContext={p.name} /></div>
+        <p class="qx-aff"><Fragment set:html={ico.shield} />Affiliate link · checkout happens on TikTok Shop</p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ─────────────────────────── 3 · Immersive ─────────────────────────── -->
+  <dialog class="qx v3" id="qx-3" aria-labelledby="v3-title">
+    <div class="v3__bar">
+      <button class="qx-close qx-close--float v3__x" type="button" data-close aria-label="Close quick view">
+        <Fragment set:html={ico.close} />
+      </button>
+      <button class="qx-close qx-close--float" type="button" data-share aria-label="Copy link to this find">
+        <Fragment set:html={ico.link} />
+      </button>
+    </div>
+    <div class="v3__scroll" data-reset-scroll>
+      <div class="v3__hero">
+        <img class="v3__blur" src={img} alt="" loading="lazy" />
+        <img class="v3__photo" src={img} alt={alt} loading="lazy" />
+      </div>
+      <div class="v3__card" data-reset-scroll>
+        <span class="qx-grab" aria-hidden="true"></span>
+        <p class="v3__chips"><span class="qx-chip">{p.category}</span><span class="v3__pick">{p.badge}</span></p>
+        <h2 id="v3-title" class="display qx-title v3__title">{p.name}</h2>
+        <p class="qx-price v3__price"><span data-price-usd={usd}>{price}</span></p>
+        <p class="qx-pnote">{NOTE}</p>
+        <p class="qx-desc v3__desc">{p.description}</p>
+        <ul class="qx-tags" role="list" aria-label="Key ingredients">
+          {ingredients.map((i) => <li>{i}</li>)}
+        </ul>
+        <div class="qx-vids">
+          <p class="qx-label">From my TikTok</p>
+          <ul role="list">
+            {
+              clips.map((c) => (
+                <li>
+                  <a class="qx-vid" href={VIDEO_LINK} target="_blank" rel="noopener">
+                    <img src={c.thumb} alt="" loading="lazy" />
+                    <span class="qx-vid__text">
+                      <span>{c.caption}</span>
+                      <span class="qx-vid__action">
+                        Watch on TikTok<span class="visually-hidden"> (opens in a new tab)</span>
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="v3__foot">
+      <div class="qx-cta"><Pill href={TEST_LINK} kind="affiliate" label="View on TikTok" block srContext={p.name} /></div>
+      <p class="qx-aff">Affiliate link</p>
+    </div>
+  </dialog>
+
+  <!-- ─────────────────────────── 4 · Watch & shop ─────────────────────────── -->
+  <dialog class="qx qx--sheet v4" id="qx-4" aria-labelledby="v4-title">
+    <span class="qx-grab" aria-hidden="true"></span>
+    <button class="qx-close v4__x" type="button" data-close aria-label="Close quick view">
+      <Fragment set:html={ico.close} />
+    </button>
+    <div class="v4__body" data-reset-scroll>
+      <a class="v4__video" href={VIDEO_LINK} target="_blank" rel="noopener">
+        <img src={img} alt="" loading="lazy" />
+        <span class="v4__play"><Fragment set:html={ico.play} /></span>
+        <span class="v4__dur" aria-hidden="true">0:42</span>
+        <span class="v4__cap">
+          <b>@{site.tiktokHandle}</b>
+          <span class="v4__capline">The body wash I keep repurchasing</span>
+        </span>
+        <span class="visually-hidden">Watch my review on TikTok (opens in a new tab)</span>
+      </a>
+      <div class="v4__top">
+        <p class="v4__eyebrow"><i aria-hidden="true"></i>Seen on my TikTok</p>
+        <h2 id="v4-title" class="display qx-title v4__title">{p.name}</h2>
+        <div>
+          <p class="qx-price"><span data-price-usd={usd}>{price}</span></p>
+          <p class="qx-pnote">{NOTE}</p>
+        </div>
+      </div>
+      <div class="v4__desc">
+        <p class="qx-desc">{p.description}</p>
+        <ul class="qx-tags" role="list" aria-label="Key ingredients">
+          {ingredients.map((i) => <li>{i}</li>)}
+        </ul>
+        <div class="qx-vids v4__vids">
+          <p class="qx-label">More from my TikTok</p>
+          <ul role="list">
+            {
+              clips.map((c) => (
+                <li>
+                  <a class="qx-vid" href={VIDEO_LINK} target="_blank" rel="noopener">
+                    <img src={c.thumb} alt="" loading="lazy" />
+                    <span class="qx-vid__text">
+                      <span>{c.caption}</span>
+                      <span class="qx-vid__action">
+                        Watch on TikTok<span class="visually-hidden"> (opens in a new tab)</span>
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+      <div class="v4__act">
+        <div class="qx-cta v4__ctas">
+          <Pill href={VIDEO_LINK} kind="external" variant="secondary" label="Watch my review" block />
+          <Pill href={TEST_LINK} kind="affiliate" label="View on TikTok" block srContext={p.name} />
+        </div>
+        <p class="qx-aff">Affiliate link</p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ─────────────────────────── 5 · Gallery first ─────────────────────────── -->
+  <dialog class="qx v5" id="qx-5" aria-labelledby="v5-title">
+    <button class="qx-close qx-close--float v5__x" type="button" data-close aria-label="Close quick view">
+      <Fragment set:html={ico.close} />
+    </button>
+    <div class="v5__scroll" data-reset-scroll>
+      <div class="v5__stage">
+        <div class="v5__viewer" data-v5-viewer tabindex="0" aria-label="Product photos, use arrow keys to browse" role="group">
+          {
+            shots.map((s, i) => (
+              <figure class="v5__slide">
+                <button
+                  class="v5__zoom"
+                  type="button"
+                  aria-pressed="false"
+                  aria-label={`Zoom in: ${s.label.toLowerCase()} (${i + 1} of ${shots.length})`}
+                  data-v5-zoom
+                >
+                  <span class="v5__zoomer">
+                    <span class="v5__crop" style={`--zx:${s.zx};--zy:${s.zy};--zs:${s.zs}`}>
+                      <img src={img} alt={i === 0 ? alt : ''} loading="lazy" draggable="false" />
+                    </span>
+                  </span>
+                </button>
+              </figure>
+            ))
+          }
+        </div>
+        <button class="v5__nav v5__nav--prev" type="button" data-v5-step="-1" aria-label="Previous photo">
+          <Fragment set:html={ico.prev} />
+        </button>
+        <button class="v5__nav v5__nav--next" type="button" data-v5-step="1" aria-label="Next photo">
+          <Fragment set:html={ico.play} />
+        </button>
+        <span class="v5__count" data-v5-count aria-live="polite">1 / {shots.length}</span>
+        <span class="v5__hint" data-v5-hint aria-hidden="true">Tap to zoom</span>
+      </div>
+      <div class="v5__rail" role="group" aria-label="Choose a photo">
+        {
+          shots.map((s, i) => (
+            <button class="v5__thumb" type="button" data-v5-go={i} aria-label={`Show ${s.label.toLowerCase()}`} aria-current={i === 0 ? 'true' : 'false'}>
+              <span class="v5__crop" style={`--zx:${s.zx};--zy:${s.zy};--zs:${s.zs}`}>
+                <img src={img} alt="" loading="lazy" />
+              </span>
+            </button>
+          ))
+        }
+      </div>
+      <div class="v5__info">
+        <p class="qx-chip">{p.category}</p>
+        <h2 id="v5-title" class="display qx-title v5__title">{p.name}</h2>
+        <p class="qx-price v5__price"><span data-price-usd={usd}>{price}</span></p>
+        <p class="qx-pnote">{NOTE}</p>
+        <p class="qx-desc v5__desc">{p.description}</p>
+        <ul class="qx-tags" role="list" aria-label="Key ingredients">
+          {ingredients.map((i) => <li>{i}</li>)}
+        </ul>
+      </div>
+      <div class="v5__foot">
+        <div class="qx-cta"><Pill href={TEST_LINK} kind="affiliate" label="View on TikTok" block srContext={p.name} /></div>
+        <p class="qx-aff">Affiliate link</p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ─────────────────────────── 6 · Snap sheet ─────────────────────────── -->
+  <dialog class="qx v6" id="qx-6" aria-labelledby="v6-title" data-snap="peek">
+    <div class="v6__top" data-v6-top>
+      <div class="v6__drag" data-v6-drag>
+        <button class="v6__handle" type="button" data-v6-toggle aria-expanded="false" aria-controls="v6-more">
+          <span class="v6__grip" aria-hidden="true"></span>
+          <span class="visually-hidden" data-v6-sr>Show more details</span>
+        </button>
+        <div class="v6__row">
+          <div class="qx-panel v6__thumb"><img src={img} alt="" loading="lazy" /></div>
+          <div class="v6__id">
+            <h2 id="v6-title" class="display v6__name">{p.name}</h2>
+            <p class="qx-price v6__price"><span data-price-usd={usd}>{price}</span></p>
+          </div>
+          <button class="qx-close" type="button" data-close aria-label="Close quick view">
+            <Fragment set:html={ico.close} />
+          </button>
+        </div>
+      </div>
+      <div class="qx-cta v6__cta"><Pill href={TEST_LINK} kind="affiliate" label="View on TikTok" block srContext={p.name} /></div>
+      <div class="v6__meta">
+        <p class="qx-aff">Affiliate link · final price on TikTok</p>
+        <button class="v6__more-btn" type="button" data-v6-toggle aria-expanded="false" aria-controls="v6-more">
+          <span data-v6-label>More details</span>
+          <Fragment set:html={ico.up} />
+        </button>
+      </div>
+    </div>
+    <div class="v6__more" id="v6-more" data-reset-scroll inert>
+      <div class="qx-panel v6__panel"><img src={img} alt={alt} loading="lazy" /></div>
+      <p class="qx-chip v6__chip">{p.category}</p>
+      <p class="qx-desc v6__desc">{p.description}</p>
+      <ul class="qx-tags" role="list" aria-label="Key ingredients">
+        {ingredients.map((i) => <li>{i}</li>)}
+      </ul>
+      <div class="qx-vids">
+        <p class="qx-label">From my TikTok</p>
+        <ul role="list">
+          {
+            clips.map((c) => (
+              <li>
+                <a class="qx-vid" href={VIDEO_LINK} target="_blank" rel="noopener">
+                  <img src={c.thumb} alt="" loading="lazy" />
+                  <span class="qx-vid__text">
+                    <span>{c.caption}</span>
+                    <span class="qx-vid__action">
+                      Watch on TikTok<span class="visually-hidden"> (opens in a new tab)</span>
+                    </span>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ─────────────────────────── 7 · Editorial ─────────────────────────── -->
+  <dialog class="qx qx--sheet v7" id="qx-7" aria-labelledby="v7-title">
+    <button class="qx-close qx-close--float v7__x" type="button" data-close aria-label="Close quick view">
+      <Fragment set:html={ico.close} />
+    </button>
+    <div class="v7__scroll" data-reset-scroll>
+      <figure class="v7__fig">
+        <img src={img} alt={alt} loading="lazy" />
+        <figcaption>Fig. 01 — {size}</figcaption>
+      </figure>
+      <div class="v7__text" data-reset-scroll>
+        <p class="v7__kicker"><span>{p.category}</span><i aria-hidden="true"></i><span>Find no. 01</span></p>
+        <h2 id="v7-title" class="v7__name"><b>Athena</b> <span>Brightening &amp; Refreshing Body Wash</span></h2>
+        <blockquote class="v7__quote">
+          <p class="v7__qlabel">Why it’s in my picks</p>
+          <p class="v7__q">{quote}</p>
+          <footer>— {site.brandName}, on TikTok</footer>
+        </blockquote>
+        <ul class="v7__chips" role="list" aria-label="Key ingredients">
+          {ingredients.map((i) => <li>{i}</li>)}
+        </ul>
+        <dl class="v7__spec">
+          <dt>Size</dt><dd>{size}</dd>
+          <dt>Texture</dt><dd>Clear lavender gel</dd>
+          <dt>Price</dt>
+          <dd>
+            <span class="v7__price"><span data-price-usd={usd}>{price}</span></span>
+            <span class="qx-pnote">{NOTE}</span>
+          </dd>
+        </dl>
+      </div>
+      <div class="v7__foot">
+        <div class="qx-cta"><Pill href={TEST_LINK} kind="affiliate" label="View on TikTok" block srContext={p.name} /></div>
+        <p class="qx-aff">Affiliate link</p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- ─────────────────────────── 8 · Related finds ─────────────────────────── -->
+  <dialog class="qx qx--sheet v8" id="qx-8" aria-labelledby="v8-title">
+    <script type="application/json" id="v8-data" set:html={findsJson} />
+    <span class="qx-grab" aria-hidden="true"></span>
+    <div class="v8__head">
+      <p class="v8__crumb">Quick view</p>
+      <button class="qx-close" type="button" data-close aria-label="Close quick view">
+        <Fragment set:html={ico.close} />
+      </button>
+    </div>
+    <div class="v8__scroll" data-reset-scroll>
+      <div class="v8__main" data-v8-main>
+        <div class="qx-panel v8__img"><img src={finds[0].src} alt={finds[0].alt} loading="lazy" data-v8-img /></div>
+        <div class="v8__info">
+          <p class="qx-chip" data-v8-cat>{p.category}</p>
+          <h2 id="v8-title" class="display qx-title v8__title" tabindex="-1" data-v8-name>{p.name}</h2>
+          <div>
+            <p class="qx-price"><span data-price-usd={usd} data-v8-price>{price}</span></p>
+            <p class="qx-pnote">{NOTE}</p>
+          </div>
+          <p class="qx-desc v8__desc" data-v8-desc>{p.description}</p>
+        </div>
+      </div>
+      <section class="v8__more" aria-labelledby="v8-more">
+        <h3 id="v8-more" class="qx-label v8__label">You might also like</h3>
+        <ul class="v8__row" role="list">
+          {
+            finds.map((f, i) => (
+              <li hidden={i === 0} data-v8-item={f.id}>
+                <button class="v8__card" type="button" data-v8-pick={f.id}>
+                  <span class="qx-panel v8__cimg">
+                    <img src={f.src} srcset={f.srcset || undefined} sizes="(min-width: 860px) 200px, 140px" alt="" loading="lazy" />
+                  </span>
+                  <span class="v8__cname">{f.name}</span>
+                  <span class="v8__cprice" data-price-usd={f.price}>{priceText(f.price)}</span>
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+    <div class="v8__foot">
+      <div class="qx-cta"><Pill href={TEST_LINK} kind="affiliate" label="View on TikTok" block /></div>
+      <p class="qx-aff">Affiliate link</p>
+    </div>
+  </dialog>
+
+  <!-- ─────────────────────────── 9 · Minimal peek ─────────────────────────── -->
+  <dialog class="qx v9" id="qx-9" aria-labelledby="v9-title">
+    <div class="qx-panel v9__img">
+      <img src={img} alt={alt} loading="lazy" />
+      <button class="qx-close qx-close--float v9__x" type="button" data-close aria-label="Close quick view">
+        <Fragment set:html={ico.close} />
+      </button>
+    </div>
+    <div class="v9__body">
+      <h2 id="v9-title" class="display v9__name">{p.name}</h2>
+      <div class="v9__line">
+        <p class="qx-price v9__price"><span data-price-usd={usd}>{price}</span></p>
+        <p class="qx-pnote">{NOTE}</p>
+      </div>
+      <div class="qx-cta"><Pill href={TEST_LINK} kind="affiliate" label="View on TikTok" block srContext={p.name} /></div>
+      <p class="qx-aff">Affiliate link</p>
+    </div>
+  </dialog>
+
+  <!-- ─────────────────────────── 10 · Dark luxe ─────────────────────────── -->
+  <dialog class="qx qx--sheet v10" id="qx-10" aria-labelledby="v10-title">
+    <div class="v10__head">
+      <p class="v10__eyebrow"><i aria-hidden="true"></i>{p.badge}</p>
+      <button class="qx-close" type="button" data-close aria-label="Close quick view">
+        <Fragment set:html={ico.close} />
+      </button>
+    </div>
+    <div class="v10__scroll" data-reset-scroll>
+      <div class="v10__frame"><img src={img} alt={alt} loading="lazy" /></div>
+      <p class="v10__cat">{p.category}</p>
+      <h2 id="v10-title" class="display qx-title v10__title">{p.name}</h2>
+      <span class="v10__rule" aria-hidden="true"></span>
+      <div class="v10__price-row">
+        <p class="qx-price v10__price"><span data-price-usd={usd}>{price}</span></p>
+        <p class="qx-pnote">{NOTE}</p>
+      </div>
+      <p class="qx-desc v10__desc">{p.description}</p>
+      <ul class="v10__chips" role="list" aria-label="Key ingredients">
+        {ingredients.map((i) => <li>{i}</li>)}
+      </ul>
+    </div>
+    <div class="v10__foot">
+      <div class="qx-cta">
+        <Pill href={TEST_LINK} kind="affiliate" variant="light" label="View on TikTok" block srContext={p.name} />
+      </div>
+      <p class="qx-aff">Affiliate link</p>
+    </div>
+  </dialog>
+
+  <style is:global>
+    /* ═══════════════════════ Lab page ═══════════════════════ */
+    .qo {
+      max-width: var(--page-max);
+      margin: 0 auto;
+      padding: 48px var(--gutter) 96px;
+    }
+    .qo-head {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .qo-title {
+      font-size: var(--h2);
+    }
+    .qo-head .lede {
+      max-width: 60ch;
+    }
+    .qo-jump {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .qo-jump a {
+      display: inline-grid;
+      place-items: center;
+      min-width: 44px;
+      height: 44px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-pill);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      text-decoration: none;
+      transition:
+        border-color var(--dur) var(--ease-out),
+        background-color var(--dur) var(--ease-out);
+    }
+    .qo-jump a:hover {
+      border-color: var(--color-ink);
+    }
+
+    .qo-opt {
+      display: grid;
+      gap: 24px;
+      padding-block: 40px;
+      border-top: 1px solid var(--color-border);
+      scroll-margin-top: 8px;
+    }
+    @media (min-width: 1100px) {
+      .qo-opt {
+        grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+        gap: 56px;
+        align-items: center;
+        padding-block: 56px;
+      }
+    }
+    .qo-opt__meta {
+      display: grid;
+      gap: 12px;
+      justify-items: start;
+      max-width: 60ch;
+    }
+    .qo-opt__name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: var(--text-lg);
+      font-weight: 600;
+    }
+    .qo-opt__num {
+      display: grid;
+      flex: none;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--color-ink);
+      color: var(--color-on-dark);
+      font-size: var(--text-sm);
+    }
+    .qo-opt__note {
+      color: var(--color-muted);
+      line-height: 1.55;
+      text-wrap: pretty;
+    }
+    .qo-opt__tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .qo-opt__tags li {
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--color-sage-tint);
+      color: var(--color-sage-ink);
+      font-size: var(--text-xs);
+      font-weight: 500;
+    }
+    .qo-open {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 48px;
+      margin-top: 4px;
+      padding: 0 22px;
+      border-radius: var(--radius-pill);
+      background: var(--color-ink);
+      color: var(--color-on-dark);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      transition: background-color var(--dur) var(--ease-out);
+    }
+    .qo-open svg {
+      transition: transform var(--dur-slow) var(--ease-out);
+    }
+    .qo-open:hover {
+      background: var(--color-ink-hover);
+    }
+    .qo-open:hover svg {
+      transform: translateX(3px);
+    }
+
+    /* Mock frames: phone + desktop, each a live iframe scaled to fit */
+    .qo-stage {
+      display: flex;
+      gap: 20px;
+      align-items: flex-end;
+      min-width: 0;
+      cursor: pointer;
+    }
+    .qo-dev {
+      display: grid;
+      gap: 10px;
+      min-width: 0;
+      margin: 0;
+    }
+    .qo-dev figcaption {
+      color: var(--color-muted);
+      font-size: var(--text-xs);
+      text-align: center;
+    }
+    .qo-dev--phone {
+      flex: 0 0 200px;
+    }
+    .qo-dev--desk {
+      flex: 1 1 0;
+    }
+    .qo-dev__bezel {
+      transition: transform var(--dur-slow) var(--ease-out);
+    }
+    .qo-stage:hover .qo-dev__bezel {
+      transform: translateY(-4px);
+    }
+    .qo-dev--phone .qo-dev__bezel {
+      padding: 6px;
+      border-radius: 34px;
+      background: #1f201d;
+      box-shadow: 0 18px 40px -18px rgb(41 43 39 / 0.45);
+    }
+    .qo-dev--desk .qo-dev__bezel {
+      overflow: hidden;
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      background: var(--color-panel);
+      box-shadow: 0 18px 40px -22px rgb(41 43 39 / 0.35);
+    }
+    .qo-dev__bar {
+      display: flex;
+      gap: 6px;
+      padding: 9px 12px;
+    }
+    .qo-dev__bar i {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-border);
+    }
+    .qo-dev__screen {
+      position: relative;
+      width: 100%;
+      aspect-ratio: var(--w) / var(--h);
+      overflow: hidden;
+      background: var(--color-bg);
+    }
+    .qo-dev--phone .qo-dev__screen {
+      border-radius: 28px;
+    }
+    .qo-dev__screen iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: calc(var(--w) * 1px);
+      height: calc(var(--h) * 1px);
+      border: 0;
+      background: var(--color-bg);
+      max-width: none;
+      transform: scale(var(--s, 0.25));
+      transform-origin: 0 0;
+      pointer-events: none;
+    }
+    @media (max-width: 719px) {
+      .qo-stage {
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        margin-inline: calc(-1 * var(--gutter));
+        padding: 4px var(--gutter) 6px;
+        scroll-padding-inline: var(--gutter);
+        scrollbar-width: none;
+      }
+      .qo-stage::-webkit-scrollbar {
+        display: none;
+      }
+      .qo-dev {
+        scroll-snap-align: start;
+      }
+      .qo-dev--phone {
+        flex-basis: 196px;
+      }
+      .qo-dev--desk {
+        flex: 0 0 min(440px, 86vw);
+      }
+    }
+
+    /* Faux catalog + scrim, only in ?mock mode */
+    .qo-mockbg,
+    .qo-scrim {
+      display: none;
+    }
+    html.is-mock .qo,
+    html.is-mock .demo-note,
+    html.is-mock .skip-link {
+      display: none;
+    }
+    html.is-mock .qo-mockbg {
+      display: block;
+      padding: 0 var(--gutter) 40px;
+    }
+    html.is-mock .qo-scrim {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      background: var(--qo-scrim, var(--color-scrim));
+    }
+    html.is-mock .qx[open] {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+    }
+    html.is-mock *,
+    html.is-mock *::before,
+    html.is-mock *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+    .qo-mockbg__bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 84px;
+    }
+    .qo-mockbg__mark {
+      display: inline-flex;
+      align-items: baseline;
+      font-family: 'Instrument Serif', serif;
+      font-size: 3rem;
+      font-style: italic;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .qo-mockbg__mark i {
+      width: 0.16em;
+      height: 0.16em;
+      margin-left: 0.04em;
+      border-radius: 50%;
+      background: var(--color-sage);
+    }
+    .qo-mockbg__nav {
+      display: flex;
+      gap: 24px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+    .qo-mockbg__h {
+      margin: 40px 0 28px;
+      font-size: var(--h2);
+    }
+    .qo-mockbg__grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (min-width: 768px) {
+      .qo-mockbg__grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 20px;
+      }
+    }
+    @media (max-width: 599px) {
+      .qo-mockbg__nav {
+        display: none;
+      }
+    }
+    .qo-mockbg__card {
+      display: grid;
+      gap: 6px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+    .qo-mockbg__img {
+      aspect-ratio: 1;
+      margin-bottom: 8px;
+      border-radius: var(--radius-panel);
+      background: var(--color-panel);
+      overflow: hidden;
+    }
+    .qo-mockbg__img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      mix-blend-mode: multiply;
+    }
+    .qo-mockbg__price {
+      color: var(--color-muted);
+      font-weight: 400;
+    }
+
+    /* ═══════════════════════ Popup base (all options) ═══════════════════════ */
+    html:has(.qx[open]) {
+      overflow: hidden;
+    }
+    .qx {
+      --qx-from: translateY(100%);
+      width: 100%;
+      max-width: none;
+      max-height: none;
+      margin: auto 0 0;
+      padding: 0;
+      border: 0;
+      background: var(--color-bg);
+      color: var(--color-ink);
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      opacity: 0;
+      transform: var(--qx-from);
+      transition:
+        opacity var(--dur) var(--ease-out),
+        transform var(--dur-slow) var(--ease-out),
+        overlay var(--dur-slow) allow-discrete,
+        display var(--dur-slow) allow-discrete;
+    }
+    .qx[open] {
+      display: flex;
+      opacity: 1;
+      transform: none;
+    }
+    @starting-style {
+      .qx[open] {
+        opacity: 0;
+        transform: var(--qx-from);
+      }
+    }
+    .qx::backdrop {
+      background: var(--qx-scrim, var(--color-scrim));
+      opacity: 0;
+      transition:
+        opacity var(--dur) var(--ease-out),
+        overlay var(--dur) allow-discrete,
+        display var(--dur) allow-discrete;
+    }
+    .qx[open]::backdrop {
+      opacity: 1;
+    }
+    @starting-style {
+      .qx[open]::backdrop {
+        opacity: 0;
+      }
+    }
+    /* Phone default: a sheet attached to the bottom edge */
+    .qx--sheet {
+      width: min(100%, 640px);
+      max-height: calc(100dvh - 16px);
+      margin: auto auto 0;
+      border-radius: 24px 24px 0 0;
+    }
+
+    .qx-grab {
+      display: block;
+      flex: none;
+      width: 36px;
+      height: 4px;
+      margin: 8px auto 0;
+      border-radius: 2px;
+      background: var(--color-border);
+    }
+    .qx-close {
+      position: relative;
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      color: inherit;
+      transition:
+        background-color var(--dur-fast) ease,
+        transform var(--dur) var(--ease-out);
+    }
+    .qx-close svg {
+      transition: transform 400ms var(--ease-out);
+    }
+    .qx-close:hover {
+      background: var(--color-panel);
+    }
+    .qx-close[data-close]:hover svg {
+      transform: rotate(90deg);
+    }
+    .qx-close[data-done] {
+      background: var(--color-sage-tint);
+      color: var(--color-sage-ink);
+    }
+    .qx-close--float {
+      background: rgb(255 255 255 / 0.9);
+      color: var(--color-ink);
+      box-shadow:
+        0 1px 2px rgb(41 43 39 / 0.08),
+        0 6px 18px rgb(41 43 39 / 0.1);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+    }
+    .qx-close--float:hover {
+      background: #fff;
+    }
+    .qx-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      background: var(--color-sage-tint);
+      color: var(--color-sage-ink);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .qx-badge {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      background: var(--color-bg);
+      font-size: var(--text-xs);
+      font-weight: 500;
+    }
+    .qx-panel {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      background: var(--color-panel);
+    }
+    .qx-panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      mix-blend-mode: multiply;
+    }
+    .qx-title {
+      font-size: clamp(1.375rem, 1.15rem + 1vw, 1.75rem);
+      line-height: 1.04;
+    }
+    .qx-price {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.3;
+    }
+    .qx-pnote {
+      color: var(--color-muted);
+      font-size: var(--text-xs);
+    }
+    .qx-desc {
+      color: var(--color-muted);
+      line-height: 1.55;
+      text-wrap: pretty;
+    }
+    .qx-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 16px;
+    }
+    .qx-tags li {
+      padding: 5px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-pill);
+      font-size: var(--text-xs);
+      font-weight: 500;
+    }
+    .qx-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .qx-cta {
+      display: grid;
+      gap: 10px;
+    }
+    .qx-cta .pill {
+      min-width: 0;
+      min-height: 54px;
+    }
+    .qx-aff {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--color-muted);
+      font-size: var(--text-xs);
+      line-height: 1.4;
+      text-align: center;
+    }
+    .qx-aff svg {
+      flex: none;
+    }
+    .qx-vids {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--color-border);
+    }
+    .qx-vids ul {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .qx-vid {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 44px;
+      font-size: var(--text-sm);
+      text-decoration: none;
+    }
+    .qx-vid img {
+      flex: none;
+      width: 40px;
+      aspect-ratio: 9 / 16;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--color-panel);
+    }
+    .qx-vid__text {
+      display: grid;
+      gap: 2px;
+    }
+    .qx-vid__action {
+      color: var(--color-muted);
+      font-size: var(--text-xs);
+    }
+    .qx-vid:hover .qx-vid__action {
+      color: var(--color-ink);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    /* ═══════════════ 1 · Refined drawer ═══════════════ */
+    .v1__head {
+      display: flex;
+      flex: none;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 10px 6px 20px;
+    }
+    .v1__crumbs {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      color: var(--color-muted);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .v1__body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 4px 20px 28px;
+    }
+    .v1__panel {
+      aspect-ratio: 5 / 4;
+    }
+    .v1__panel img {
+      object-position: 50% 30%;
+    }
+    @media (min-width: 640px) {
+      .v1__panel {
+        aspect-ratio: 1;
+      }
+    }
+    .v1__title {
+      margin-top: 20px;
+    }
+    .v1__desc {
+      margin-top: 12px;
+    }
+    .v1__currency {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 20px;
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+    }
+    .v1__foot {
+      display: grid;
+      flex: none;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 10px 16px;
+      padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--color-border);
+      background: var(--color-bg);
+    }
+    .v1__price .qx-price {
+      font-size: 1.375rem;
+      line-height: 1.15;
+    }
+    .v1__aff {
+      grid-column: 1 / -1;
+    }
+    @media (min-width: 640px) {
+      .v1 {
+        --qx-from: translateX(calc(100% + 24px));
+        width: min(460px, 100% - 24px);
+        height: calc(100dvh - 24px);
+        max-height: none;
+        margin: 12px 12px 12px auto;
+        border-radius: 28px;
+      }
+      .v1__grab {
+        display: none;
+      }
+      .v1__head {
+        padding: 12px 12px 8px 24px;
+      }
+      .v1__body {
+        padding-inline: 24px;
+      }
+      .v1__foot {
+        padding: 16px 24px 20px;
+      }
+    }
+
+    /* ═══════════════ 2 · Split view ═══════════════ */
+    .v2 {
+      height: calc(100dvh - 12px);
+      max-height: none;
+    }
+    .v2__x {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 3;
+    }
+    .v2__main {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .v2__media {
+      position: relative;
+      aspect-ratio: 1;
+      max-height: 52dvh;
+      width: 100%;
+      background: var(--color-panel);
+      overflow: hidden;
+    }
+    .v2__media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      mix-blend-mode: multiply;
+    }
+    .v2__info {
+      padding: 22px 20px 24px;
+    }
+    .v2__title {
+      margin-top: 14px;
+    }
+    .v2__price-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 12px 0 18px;
+    }
+    .v2__price {
+      font-size: 1.5rem;
+    }
+    .v2__facts {
+      display: grid;
+      margin-top: 20px;
+      border-top: 1px solid var(--color-border);
+      font-size: var(--text-sm);
+    }
+    .v2__facts div {
+      display: grid;
+      grid-template-columns: 9.5rem minmax(0, 1fr);
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .v2__facts dt {
+      color: var(--color-muted);
+    }
+    .v2__facts dd {
+      margin: 0;
+      font-weight: 500;
+    }
+    .v2__how {
+      border-bottom: 1px solid var(--color-border);
+      font-size: var(--text-sm);
+    }
+    .v2__how summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 48px;
+      font-weight: 500;
+      cursor: pointer;
+      list-style: none;
+    }
+    .v2__how summary::-webkit-details-marker {
+      display: none;
+    }
+    .v2__how summary::after {
+      content: '+';
+      font-size: 1.25rem;
+      font-weight: 400;
+      transition: transform var(--dur) var(--ease-out);
+    }
+    .v2__how[open] summary::after {
+      transform: rotate(45deg);
+    }
+    .v2__how p {
+      padding-bottom: 14px;
+      color: var(--color-muted);
+      line-height: 1.55;
+    }
+    .v2__foot {
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
+      display: grid;
+      gap: 10px;
+      padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--color-border);
+      background: rgb(255 255 255 / 0.94);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    @media (min-width: 900px) {
+      .v2 {
+        --qx-from: translateY(20px) scale(0.98);
+        width: min(1060px, 100% - 48px);
+        height: min(700px, 100dvh - 48px);
+        margin: auto;
+        border-radius: 28px;
+      }
+      .v2__x {
+        top: 20px;
+        right: 20px;
+        background: transparent;
+        box-shadow: none;
+      }
+      .v2__x:hover {
+        background: var(--color-panel);
+      }
+      .v2__main {
+        display: grid;
+        grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) auto;
+        overflow: hidden;
+      }
+      .v2__media {
+        grid-row: 1 / 3;
+        aspect-ratio: auto;
+        max-height: none;
+        height: auto;
+        margin: 12px 0 12px 12px;
+        width: auto;
+        border-radius: 20px;
+      }
+      .v2__info {
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 36px 44px 20px;
+      }
+      .v2__foot {
+        position: static;
+        padding: 16px 44px 28px;
+        background: var(--color-bg);
+      }
+    }
+
+    /* ═══════════════ 3 · Immersive ═══════════════ */
+    .v3 {
+      --qx-from: translateY(8%);
+      width: 100%;
+      height: 100dvh;
+      max-height: none;
+      margin: 0;
+      border-radius: 0;
+      background: var(--color-panel);
+    }
+    .v3__scroll {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .v3__hero {
+      position: sticky;
+      top: 0;
+      height: 62dvh;
+      overflow: hidden;
+      background: var(--color-panel);
+    }
+    .v3__blur {
+      display: none;
+      position: absolute;
+      inset: -12%;
+      width: 124%;
+      height: 124%;
+      max-width: none;
+      object-fit: cover;
+      filter: blur(40px) saturate(1.15);
+    }
+    .v3__photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 42%;
+    }
+    .v3__card {
+      position: relative;
+      z-index: 1;
+      min-height: calc(38dvh + 28px);
+      margin-top: -28px;
+      padding: 0 20px calc(132px + env(safe-area-inset-bottom));
+      border-radius: 28px 28px 0 0;
+      background: var(--color-bg);
+      box-shadow: 0 -10px 30px rgb(41 43 39 / 0.08);
+      transition:
+        transform var(--dur-slow) var(--ease-out),
+        opacity var(--dur) var(--ease-out);
+    }
+    @starting-style {
+      .v3[open] .v3__card {
+        transform: translateY(30%);
+        opacity: 0;
+      }
+    }
+    .v3__card .qx-grab {
+      margin-bottom: 16px;
+    }
+    .v3__chips {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--color-muted);
+      font-size: var(--text-xs);
+      font-weight: 500;
+    }
+    .v3__title {
+      margin-top: 14px;
+    }
+    .v3__price {
+      margin-top: 12px;
+      font-size: 1.5rem;
+    }
+    .v3__desc {
+      margin-top: 16px;
+    }
+    .v3__bar {
+      position: absolute;
+      top: calc(12px + env(safe-area-inset-top));
+      left: 12px;
+      right: 12px;
+      z-index: 3;
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .v3__bar > * {
+      pointer-events: auto;
+    }
+    .v3__foot {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 3;
+      display: grid;
+      gap: 10px;
+      padding: 28px 20px calc(14px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, #fff 72%, rgb(255 255 255 / 0));
+    }
+    @media (min-width: 900px) {
+      .v3 {
+        --qx-from: scale(0.97);
+        width: min(1120px, 100% - 48px);
+        height: min(760px, 100dvh - 48px);
+        margin: auto;
+        border-radius: 28px;
+      }
+      .v3__scroll {
+        overflow: hidden;
+      }
+      .v3__hero {
+        position: absolute;
+        inset: 0;
+        height: auto;
+      }
+      .v3__blur {
+        display: block;
+        inset: 0 auto;
+        left: calc((100% - 452px) / 2);
+        width: auto;
+        height: 100%;
+        aspect-ratio: 1;
+        translate: -50% 0;
+        scale: 1.6;
+      }
+      .v3__photo {
+        inset: 0 auto;
+        left: calc((100% - 452px) / 2);
+        width: auto;
+        height: 100%;
+        aspect-ratio: 1;
+        max-width: none;
+        translate: -50% 0;
+        object-fit: cover;
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
+        mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
+      }
+      .v3__card {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        bottom: 16px;
+        width: 420px;
+        min-height: 0;
+        margin: 0;
+        padding: 32px 28px 150px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        border-radius: 24px;
+        box-shadow: 0 16px 50px -12px rgb(41 43 39 / 0.25);
+      }
+      @starting-style {
+        .v3[open] .v3__card {
+          transform: translateX(40px);
+          opacity: 0;
+        }
+      }
+      .v3__card .qx-grab {
+        display: none;
+      }
+      .v3__bar {
+        top: 24px;
+        left: 24px;
+        right: 24px;
+      }
+      .v3__x {
+        background: transparent;
+        box-shadow: none;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+      .v3__x:hover {
+        background: var(--color-panel);
+      }
+      .v3__foot {
+        left: auto;
+        right: 16px;
+        bottom: 16px;
+        width: 420px;
+        padding: 32px 28px 24px;
+        border-radius: 0 0 24px 24px;
+      }
+    }
+
+    /* ═══════════════ 4 · Watch & shop ═══════════════ */
+    .v4__x {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+    }
+    .v4__body {
+      display: grid;
+      flex: 1;
+      min-height: 0;
+      grid-template-columns: 128px minmax(0, 1fr);
+      grid-template-areas:
+        'video top'
+        'desc desc'
+        'act act';
+      align-content: start;
+      gap: 18px 16px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 14px 20px calc(18px + env(safe-area-inset-bottom));
+    }
+    .v4__video {
+      grid-area: video;
+      position: relative;
+      display: block;
+      aspect-ratio: 9 / 16;
+      overflow: hidden;
+      border-radius: 16px;
+      background: var(--color-panel);
+      color: #fff;
+      text-decoration: none;
+    }
+    .v4__video img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      mix-blend-mode: multiply;
+      transition: transform 900ms var(--ease-out);
+    }
+    .v4__video:hover img {
+      transform: scale(1.04);
+    }
+    .v4__video::after {
+      content: '';
+      position: absolute;
+      inset: 45% 0 0;
+      background: linear-gradient(to top, rgb(20 21 19 / 0.7), transparent);
+      pointer-events: none;
+    }
+    .v4__play {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      padding-left: 3px;
+      border-radius: 50%;
+      background: rgb(255 255 255 / 0.92);
+      color: var(--color-ink);
+      translate: -50% -50%;
+      transition: scale var(--dur) var(--ease-spring);
+    }
+    .v4__video:hover .v4__play {
+      scale: 1.08;
+    }
+    .v4__dur {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 1;
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      background: rgb(20 21 19 / 0.55);
+      font-size: 11px;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+    .v4__cap {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      z-index: 1;
+      display: grid;
+      gap: 2px;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    .v4__capline {
+      display: none;
+    }
+    .v4__top {
+      grid-area: top;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      padding-top: 6px;
+    }
+    .v4__eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-right: 40px;
+      color: var(--color-sage-ink);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .v4__eyebrow i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-sage);
+    }
+    .v4__title {
+      font-size: 1.25rem;
+    }
+    .v4__desc {
+      grid-area: desc;
+    }
+    .v4__desc .qx-tags {
+      margin-top: 14px;
+    }
+    .v4__vids {
+      display: none;
+    }
+    .v4__act {
+      grid-area: act;
+      display: grid;
+      gap: 10px;
+    }
+    .v4__ctas {
+      grid-template-columns: 1fr 1fr;
+    }
+    .v4__ctas .pill {
+      gap: 10px;
+      padding-inline: 18px 16px;
+    }
+    @media (max-width: 380px) {
+      .v4__ctas {
+        grid-template-columns: 1fr;
+      }
+    }
+    @media (min-width: 860px) {
+      .v4 {
+        --qx-from: translateY(20px) scale(0.98);
+        width: min(900px, 100% - 48px);
+        max-height: min(720px, 100dvh - 48px);
+        margin: auto;
+        border-radius: 28px;
+      }
+      .v4 .qx-grab {
+        display: none;
+      }
+      .v4__x {
+        top: 16px;
+        right: 16px;
+      }
+      .v4__body {
+        grid-template-columns: 320px minmax(0, 1fr);
+        grid-template-rows: auto 1fr auto;
+        grid-template-areas:
+          'video top'
+          'video desc'
+          'video act';
+        gap: 0 40px;
+        padding: 20px;
+      }
+      .v4__video {
+        border-radius: 20px;
+      }
+      .v4__cap {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        font-size: var(--text-sm);
+      }
+      .v4__capline {
+        display: block;
+      }
+      .v4__play {
+        width: 64px;
+        height: 64px;
+      }
+      .v4__top {
+        gap: 16px;
+        padding: 28px 40px 0 0;
+      }
+      .v4__title {
+        font-size: 1.75rem;
+      }
+      .v4__desc {
+        margin-top: 20px;
+        padding: 0 24px 24px 0;
+      }
+      .v4__vids {
+        display: block;
+      }
+      .v4__act {
+        padding: 0 4px 8px 0;
+      }
+    }
+
+    /* ═══════════════ 5 · Gallery first ═══════════════ */
+    .v5 {
+      --qx-from: translateY(6%);
+      width: 100%;
+      height: 100dvh;
+      max-height: none;
+      margin: 0;
+      border-radius: 0;
+    }
+    .v5__x {
+      position: absolute;
+      top: calc(12px + env(safe-area-inset-top));
+      right: 12px;
+      z-index: 4;
+    }
+    .v5__scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .v5__stage {
+      position: relative;
+      background: var(--color-panel);
+    }
+    .v5__viewer {
+      display: flex;
+      height: min(100vw, 60dvh);
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+    .v5__viewer::-webkit-scrollbar {
+      display: none;
+    }
+    .v5__viewer:focus-visible {
+      outline-offset: -4px;
+    }
+    .v5__viewer.is-zoomed {
+      overflow: hidden;
+    }
+    .v5__slide {
+      position: relative;
+      flex: 0 0 100%;
+      margin: 0;
+      overflow: hidden;
+      scroll-snap-align: start;
+    }
+    .v5__zoom {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      overflow: hidden;
+      cursor: zoom-in;
+    }
+    .v5__zoom[aria-pressed='true'] {
+      cursor: zoom-out;
+      touch-action: none;
+    }
+    .v5__zoomer {
+      position: absolute;
+      inset: 0;
+      transform-origin: var(--ox, 50%) var(--oy, 50%);
+      transition: transform var(--dur-slow) var(--ease-out);
+    }
+    .v5__zoom[aria-pressed='true'] .v5__zoomer {
+      transform: scale(2.2);
+    }
+    .v5__crop {
+      position: absolute;
+      inset: 0;
+      display: block;
+      transform: scale(var(--zs));
+      transform-origin: var(--zx) var(--zy);
+    }
+    .v5__crop img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      -webkit-user-drag: none;
+      user-select: none;
+    }
+    .v5__nav {
+      position: absolute;
+      top: 50%;
+      z-index: 2;
+      display: none;
+      place-items: center;
+      width: 48px;
+      height: 40px;
+      margin-top: -20px;
+      border-radius: var(--radius-pill);
+      background: var(--color-bg);
+      transition: transform var(--dur) var(--ease-out);
+    }
+    .v5__nav--prev {
+      left: 16px;
+    }
+    .v5__nav--next {
+      right: 16px;
+    }
+    .v5__nav--prev:hover {
+      transform: translateX(-2px);
+    }
+    .v5__nav--next:hover {
+      transform: translateX(2px);
+    }
+    .v5__count,
+    .v5__hint {
+      position: absolute;
+      bottom: 14px;
+      z-index: 2;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: var(--color-bg);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      pointer-events: none;
+    }
+    .v5__count {
+      left: 14px;
+    }
+    .v5__hint {
+      right: 14px;
+      color: var(--color-muted);
+    }
+    .v5__rail {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 12px 20px 4px;
+      scrollbar-width: none;
+    }
+    .v5__thumb {
+      position: relative;
+      flex: none;
+      width: 60px;
+      height: 60px;
+      overflow: hidden;
+      border-radius: 14px;
+      background: var(--color-panel);
+      opacity: 0.6;
+      transition: opacity var(--dur) var(--ease-out);
+    }
+    .v5__thumb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: inset 0 0 0 2px transparent;
+      transition: box-shadow var(--dur) var(--ease-out);
+    }
+    .v5__thumb:hover {
+      opacity: 1;
+    }
+    .v5__thumb[aria-current='true'] {
+      opacity: 1;
+    }
+    .v5__thumb[aria-current='true']::after {
+      box-shadow: inset 0 0 0 2px var(--color-ink);
+    }
+    .v5__info {
+      padding: 18px 20px 24px;
+    }
+    .v5__title {
+      margin-top: 14px;
+    }
+    .v5__price {
+      margin-top: 12px;
+      font-size: 1.5rem;
+    }
+    .v5__desc {
+      margin-top: 14px;
+    }
+    .v5__foot {
+      position: sticky;
+      bottom: 0;
+      z-index: 3;
+      display: grid;
+      gap: 10px;
+      padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--color-border);
+      background: rgb(255 255 255 / 0.94);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    @media (min-width: 900px) {
+      .v5 {
+        --qx-from: scale(0.97);
+        width: min(1200px, 100% - 48px);
+        height: min(800px, 100dvh - 48px);
+        margin: auto;
+        border-radius: 28px;
+      }
+      .v5__x {
+        top: 16px;
+        right: 16px;
+        background: transparent;
+        box-shadow: none;
+      }
+      .v5__x:hover {
+        background: var(--color-panel);
+      }
+      .v5__scroll {
+        display: grid;
+        grid-template-columns: 100px minmax(0, 1fr) 380px;
+        grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-areas:
+          'rail stage info'
+          'rail stage foot';
+        overflow: hidden;
+      }
+      .v5__stage {
+        grid-area: stage;
+        margin: 12px 0;
+        overflow: hidden;
+        border-radius: 20px;
+      }
+      .v5__viewer {
+        height: 100%;
+      }
+      .v5__nav {
+        display: grid;
+      }
+      .v5__rail {
+        grid-area: rail;
+        flex-direction: column;
+        gap: 10px;
+        overflow-y: auto;
+        padding: 12px 12px 12px 12px;
+      }
+      .v5__thumb {
+        width: 76px;
+        height: 76px;
+      }
+      .v5__info {
+        grid-area: info;
+        overflow-y: auto;
+        padding: 72px 36px 16px;
+      }
+      .v5__foot {
+        grid-area: foot;
+        position: static;
+        padding: 16px 36px 28px;
+        background: var(--color-bg);
+      }
+    }
+
+    /* ═══════════════ 6 · Snap sheet ═══════════════ */
+    .v6 {
+      --qx-scrim: rgb(28 29 26 / 0.3);
+      width: min(100%, 600px);
+      height: min(100dvh - 24px, 880px);
+      max-height: none;
+      margin: auto auto 0;
+      border-radius: 24px 24px 0 0;
+      opacity: 1;
+      box-shadow: 0 -12px 40px rgb(41 43 39 / 0.14);
+    }
+    @starting-style {
+      .qx.v6[open] {
+        opacity: 1;
+      }
+    }
+    .v6[open][data-snap='peek'] {
+      transform: translateY(calc(100% - var(--peek, 240px) - env(safe-area-inset-bottom)));
+    }
+    .v6[open][data-snap='full'] {
+      --qx-scrim: rgb(28 29 26 / 0.5);
+      transform: none;
+    }
+    @starting-style {
+      .v6[open][data-snap] {
+        transform: translateY(100%);
+      }
+    }
+    .v6.is-dragging {
+      transition: none;
+    }
+    .v6::backdrop {
+      transition:
+        opacity var(--dur) var(--ease-out),
+        background-color var(--dur) var(--ease-out),
+        overlay var(--dur) allow-discrete,
+        display var(--dur) allow-discrete;
+    }
+    .v6__top {
+      flex: none;
+      padding: 0 16px 14px;
+    }
+    .v6__drag {
+      touch-action: none;
+      cursor: grab;
+    }
+    .v6.is-dragging .v6__drag {
+      cursor: grabbing;
+    }
+    .v6__handle {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 28px;
+      cursor: inherit;
+    }
+    .v6__grip {
+      width: 40px;
+      height: 5px;
+      border-radius: 3px;
+      background: var(--color-border);
+      transition: background-color var(--dur) var(--ease-out);
+    }
+    .v6__handle:hover .v6__grip {
+      background: var(--color-sage);
+    }
+    .v6__row {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr) 44px;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 14px;
+    }
+    .v6__thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: 14px;
+    }
+    .v6__name {
+      display: -webkit-box;
+      overflow: hidden;
+      font-size: 1rem;
+      line-height: 1.08;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+    .v6__price {
+      margin-top: 4px;
+      font-size: 1.125rem;
+    }
+    .v6__meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .v6__meta .qx-aff {
+      justify-content: flex-start;
+      text-align: left;
+    }
+    .v6__more-btn {
+      display: inline-flex;
+      flex: none;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0 4px 0 8px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+    .v6__more-btn svg {
+      transition: transform var(--dur) var(--ease-out);
+    }
+    .v6[data-snap='full'] .v6__more-btn svg {
+      transform: rotate(180deg);
+    }
+    .v6__more {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 16px 16px calc(28px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--color-border);
+    }
+    .v6__panel {
+      aspect-ratio: 1;
+    }
+    .v6__chip {
+      margin-top: 18px;
+    }
+    .v6__desc {
+      margin-top: 12px;
+    }
+    @media (min-width: 640px) {
+      .v6 {
+        width: 560px;
+        border-radius: 28px 28px 0 0;
+      }
+      .v6__top {
+        padding-inline: 24px;
+      }
+      .v6__more {
+        padding-inline: 24px;
+      }
+    }
+
+    /* ═══════════════ 7 · Editorial ═══════════════ */
+    .v7 {
+      max-height: calc(100dvh - 12px);
+    }
+    .v7__x {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 3;
+    }
+    .v7__scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .v7__fig {
+      position: relative;
+      aspect-ratio: 5 / 4;
+      margin: 0;
+      overflow: hidden;
+      background: var(--color-panel);
+    }
+    .v7__fig img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 38%;
+      mix-blend-mode: multiply;
+    }
+    .v7__fig figcaption {
+      display: none;
+      position: absolute;
+      left: 20px;
+      bottom: 18px;
+      color: var(--color-muted);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .v7__text {
+      padding: 26px 22px 18px;
+    }
+    .v7__kicker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--color-sage-ink);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .v7__kicker i {
+      width: 28px;
+      height: 1px;
+      background: currentColor;
+    }
+    .v7__name {
+      margin-top: 14px;
+      font-family: 'Instrument Serif', 'Times New Roman', serif;
+      font-style: italic;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 0.92;
+      text-wrap: balance;
+    }
+    .v7__name b {
+      display: block;
+      font-weight: 400;
+      font-size: clamp(4rem, 3rem + 4vw, 6rem);
+      letter-spacing: -0.035em;
+      line-height: 0.85;
+    }
+    .v7__name span {
+      display: block;
+      margin-top: 8px;
+      font-size: clamp(1.625rem, 1.3rem + 1vw, 2.125rem);
+      line-height: 1.02;
+    }
+    .v7__quote {
+      position: relative;
+      margin: 26px 0 0;
+      padding: 22px 0 0 0;
+      border-top: 1px solid var(--color-border);
+    }
+    .v7__qlabel {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .v7__q {
+      position: relative;
+      margin-top: 12px;
+      padding-left: 28px;
+      font-family: 'Instrument Serif', 'Times New Roman', serif;
+      font-size: 1.5rem;
+      font-style: italic;
+      line-height: 1.18;
+      text-wrap: pretty;
+    }
+    .v7__q::before {
+      content: '“';
+      position: absolute;
+      top: -0.12em;
+      left: -2px;
+      color: var(--color-sage);
+      font-size: 3.25rem;
+      line-height: 1;
+    }
+    .v7__quote footer {
+      margin-top: 10px;
+      padding-left: 28px;
+      color: var(--color-muted);
+      font-size: var(--text-sm);
+    }
+    .v7__chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 24px;
+    }
+    .v7__chips li {
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      background: var(--color-sage-tint);
+      color: var(--color-sage-ink);
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+    .v7__spec {
+      display: grid;
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+      gap: 12px 16px;
+      margin: 24px 0 0;
+      padding-top: 18px;
+      border-top: 1px solid var(--color-border);
+      font-size: var(--text-sm);
+    }
+    .v7__spec dt {
+      color: var(--color-muted);
+    }
+    .v7__spec dd {
+      display: grid;
+      gap: 2px;
+      margin: 0;
+      font-weight: 500;
+    }
+    .v7__price {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .v7__foot {
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
+      display: grid;
+      gap: 10px;
+      padding: 12px 22px calc(12px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--color-border);
+      background: rgb(255 255 255 / 0.94);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    @media (min-width: 900px) {
+      .v7 {
+        --qx-from: translateY(20px) scale(0.98);
+        width: min(1080px, 100% - 48px);
+        height: min(780px, 100dvh - 48px);
+        max-height: none;
+        margin: auto;
+        border-radius: 28px;
+      }
+      .v7__x {
+        top: 24px;
+        right: 24px;
+      }
+      .v7__scroll {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
+        grid-template-rows: minmax(0, 1fr) auto;
+        grid-template-areas:
+          'text fig'
+          'foot fig';
+        overflow: hidden;
+      }
+      .v7__fig {
+        grid-area: fig;
+        aspect-ratio: auto;
+        margin: 12px 12px 12px 0;
+        border-radius: 20px;
+      }
+      .v7__fig img {
+        object-position: 50% 50%;
+      }
+      .v7__fig figcaption {
+        display: block;
+      }
+      .v7__text {
+        grid-area: text;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 48px 52px 20px;
+      }
+      .v7__foot {
+        grid-area: foot;
+        position: static;
+        padding: 16px 52px 32px;
+        background: var(--color-bg);
+      }
+    }
+
+    /* ═══════════════ 8 · Related finds ═══════════════ */
+    .v8__head {
+      display: flex;
+      flex: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 10px 0 20px;
+    }
+    .v8__crumb {
+      color: var(--color-muted);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .v8__scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 6px 20px 22px;
+    }
+    .v8__main {
+      display: grid;
+      grid-template-columns: 116px minmax(0, 1fr);
+      align-items: start;
+      gap: 16px;
+      transition: opacity var(--dur) var(--ease-out);
+    }
+    .v8__main.is-swapping {
+      opacity: 0.15;
+    }
+    .v8__img {
+      aspect-ratio: 1;
+      border-radius: 16px;
+    }
+    .v8__info {
+      display: grid;
+      justify-items: start;
+      gap: 8px;
+    }
+    .v8__title {
+      font-size: 1.125rem;
+    }
+    .v8__title:focus {
+      outline: none;
+    }
+    .v8__desc {
+      font-size: var(--text-sm);
+    }
+    .v8__more {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--color-border);
+    }
+    .v8 .v8__row {
+      display: grid;
+      grid-auto-columns: 140px;
+      grid-auto-flow: column;
+      gap: 12px;
+      margin: 12px -20px 0;
+      padding: 2px 20px 6px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding-inline: 20px;
+      scrollbar-width: none;
+    }
+    .v8__row::-webkit-scrollbar {
+      display: none;
+    }
+    .v8__row li {
+      scroll-snap-align: start;
+    }
+    .v8__row li[hidden] {
+      display: none;
+    }
+    .v8__card {
+      display: grid;
+      gap: 6px;
+      width: 100%;
+      text-align: left;
+    }
+    .v8__cimg {
+      display: block;
+      aspect-ratio: 1;
+      margin-bottom: 4px;
+      border-radius: 16px;
+    }
+    .v8__cimg img {
+      transition: transform 700ms var(--ease-out);
+    }
+    .v8__card:hover .v8__cimg img {
+      transform: scale(1.04);
+    }
+    .v8__cname {
+      display: -webkit-box;
+      overflow: hidden;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      line-height: 1.3;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+    }
+    .v8__cprice {
+      color: var(--color-muted);
+      font-size: var(--text-xs);
+    }
+    .v8__foot {
+      display: grid;
+      flex: none;
+      gap: 10px;
+      padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--color-border);
+    }
+    @media (min-width: 860px) {
+      .v8 {
+        --qx-from: translateY(20px) scale(0.98);
+        width: min(920px, 100% - 48px);
+        max-height: min(840px, 100dvh - 48px);
+        margin: auto;
+        border-radius: 28px;
+      }
+      .v8 .qx-grab {
+        display: none;
+      }
+      .v8__head {
+        padding: 14px 16px 0 36px;
+      }
+      .v8__scroll {
+        padding: 8px 36px 28px;
+      }
+      .v8__main {
+        grid-template-columns: 320px minmax(0, 1fr);
+        align-items: center;
+        gap: 36px;
+      }
+      .v8__img {
+        border-radius: 20px;
+      }
+      .v8__info {
+        gap: 12px;
+      }
+      .v8__title {
+        font-size: 1.75rem;
+      }
+      .v8__desc {
+        font-size: var(--text-base);
+      }
+      .v8 .v8__row {
+        grid-auto-flow: row;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin: 14px 0 0;
+        padding: 0;
+        overflow: visible;
+      }
+      .v8__foot {
+        grid-template-columns: minmax(0, 1fr) 340px;
+        align-items: center;
+        padding: 16px 36px 24px;
+      }
+      .v8__foot .qx-aff {
+        order: -1;
+        justify-content: flex-start;
+      }
+    }
+
+    /* ═══════════════ 9 · Minimal peek ═══════════════ */
+    .v9 {
+      --qx-from: translateY(24px) scale(0.96);
+      width: min(100% - 24px, 380px);
+      max-height: calc(100dvh - 24px);
+      margin: auto auto calc(12px + env(safe-area-inset-bottom));
+      border-radius: 28px;
+      box-shadow: 0 30px 60px -20px rgb(20 21 19 / 0.35);
+    }
+    @media (min-width: 640px) {
+      .v9 {
+        margin: auto;
+      }
+    }
+    .v9__img {
+      flex: none;
+      aspect-ratio: 5 / 4;
+      margin: 8px 8px 0;
+      border-radius: 22px;
+    }
+    .v9__img img {
+      object-position: 50% 30%;
+    }
+    .v9__x {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+    }
+    .v9__body {
+      display: grid;
+      gap: 14px;
+      padding: 18px 20px 18px;
+      overflow-y: auto;
+    }
+    .v9__name {
+      font-size: 1.25rem;
+      line-height: 1.05;
+    }
+    .v9__line {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 4px 12px;
+    }
+    .v9__price {
+      font-size: 1.375rem;
+    }
+
+    /* ═══════════════ 10 · Dark luxe ═══════════════ */
+    .v10 {
+      --qx-scrim: rgb(12 13 11 / 0.72);
+      --lux-muted: rgb(255 255 255 / 0.64);
+      --lux-line: rgb(255 255 255 / 0.1);
+      background: #232521;
+      color: var(--color-on-dark);
+      max-height: calc(100dvh - 12px);
+    }
+    .v10 :focus-visible {
+      outline-color: var(--color-on-dark);
+    }
+    .v10 .qx-grab {
+      background: var(--lux-line);
+    }
+    .v10__head {
+      display: flex;
+      flex: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px 4px 20px;
+    }
+    .v10__eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--color-sage);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .v10__eyebrow i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 0 4px rgb(168 173 152 / 0.18);
+    }
+    .v10 .qx-close:hover {
+      background: rgb(255 255 255 / 0.08);
+    }
+    .v10__scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 6px 20px 20px;
+    }
+    .v10__frame {
+      position: relative;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 20px;
+      background: var(--color-panel);
+      box-shadow:
+        0 0 0 1px rgb(255 255 255 / 0.06),
+        0 30px 80px -30px rgb(168 173 152 / 0.45);
+    }
+    .v10__frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      mix-blend-mode: multiply;
+    }
+    .v10__cat {
+      margin-top: 22px;
+      color: var(--color-sage);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .v10__title {
+      margin-top: 10px;
+    }
+    .v10__rule {
+      display: block;
+      height: 1px;
+      margin: 18px 0;
+      background: linear-gradient(90deg, var(--color-sage), transparent);
+    }
+    .v10__price-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 4px 12px;
+    }
+    .v10__price {
+      font-size: 1.5rem;
+    }
+    .v10 .qx-pnote,
+    .v10 .qx-aff {
+      color: var(--lux-muted);
+    }
+    .v10__desc {
+      margin-top: 14px;
+      color: rgb(255 255 255 / 0.74);
+    }
+    .v10__chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 18px;
+    }
+    .v10__chips li {
+      padding: 5px 12px;
+      border: 1px solid rgb(168 173 152 / 0.45);
+      border-radius: var(--radius-pill);
+      color: #d9dccf;
+      font-size: var(--text-xs);
+      font-weight: 500;
+    }
+    .v10__foot {
+      display: grid;
+      flex: none;
+      gap: 10px;
+      padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+      border-top: 1px solid var(--lux-line);
+    }
+    @media (min-width: 640px) {
+      .v10 {
+        --qx-from: translateY(20px) scale(0.98);
+        width: 460px;
+        max-height: min(900px, 100dvh - 48px);
+        margin: auto;
+        border-radius: 28px;
+        box-shadow: 0 40px 100px -30px rgb(0 0 0 / 0.6);
+      }
+      .v10__head {
+        padding: 14px 14px 6px 28px;
+      }
+      .v10__scroll {
+        padding-inline: 28px;
+      }
+      .v10__frame {
+        aspect-ratio: 5 / 4;
+      }
+      .v10__frame img {
+        object-position: 50% 32%;
+      }
+      .v10__foot {
+        padding: 16px 28px 24px;
+      }
+    }
+
+    /* ═══════════════ Reduced motion ═══════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      .qx,
+      .qx *,
+      .qx::backdrop,
+      .qo-dev__bezel,
+      .qo-open svg {
+        transition-duration: 0ms !important;
+        animation: none !important;
+      }
+      .qo-stage:hover .qo-dev__bezel {
+        transform: none;
+      }
+    }
+  </style>
+
+  <script>
+    type Find = {
+      id: string;
+      name: string;
+      category: string;
+      description: string;
+      price: number;
+      src: string;
+      srcset: string;
+      alt: string;
+    };
+
+    const mockId = new URLSearchParams(location.search).get('mock');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+    const dialogs = [...document.querySelectorAll<HTMLDialogElement>('dialog.qx')];
+    let trigger: HTMLElement | null = null;
+
+    // ── Open / close ──────────────────────────────────────────────────────
+    function openDialog(id: string, from?: HTMLElement | null) {
+      const d = document.getElementById(`qx-${id}`) as HTMLDialogElement | null;
+      if (!d || d.open) return;
+      trigger = from ?? null;
+      d.querySelectorAll<HTMLElement>('[data-reset-scroll]').forEach((el) => (el.scrollTop = 0));
+      // Mock frames open without showModal so the iframe never pulls focus (or scroll) from the page.
+      if (mockId) d.setAttribute('open', '');
+      else d.showModal();
+      d.dispatchEvent(new Event('qx:open'));
+    }
+
+    document.addEventListener('click', (e) => {
+      const t = e.target as Element;
+      const opener = t.closest<HTMLElement>('[data-open]');
+      if (opener) {
+        const btn = opener.matches('button')
+          ? opener
+          : opener.closest('.qo-opt')?.querySelector<HTMLElement>('.qo-open');
+        openDialog(opener.dataset.open!, btn);
+        return;
+      }
+      const closer = t.closest('[data-close]');
+      if (closer) closer.closest('dialog')?.close();
+    });
+
+    for (const d of dialogs) {
+      // Backdrop click (the dialog's own box is always filled by its content).
+      d.addEventListener('click', (e) => {
+        if (e.target !== d || d.hasAttribute('data-dragged')) return;
+        d.close();
+      });
+      d.addEventListener('close', () => {
+        const t = trigger;
+        trigger = null;
+        t?.focus({ preventScroll: true });
+      });
+    }
+
+    // ── Copy link ─────────────────────────────────────────────────────────
+    document.querySelectorAll<HTMLButtonElement>('[data-share]').forEach((btn) => {
+      const idle = btn.getAttribute('aria-label') || 'Copy link';
+      let timer = 0;
+      btn.addEventListener('click', async () => {
+        const url = `${location.origin}/#find-athena-body-wash`;
+        let ok = false;
+        try {
+          await navigator.clipboard.writeText(url);
+          ok = true;
+        } catch {
+          ok = false;
+        }
+        btn.setAttribute('aria-label', ok ? 'Link copied' : 'Could not copy the link');
+        btn.toggleAttribute('data-done', ok);
+        clearTimeout(timer);
+        timer = window.setTimeout(() => {
+          btn.setAttribute('aria-label', idle);
+          btn.removeAttribute('data-done');
+        }, 2200);
+      });
+    });
+
+    // ── 5 · Gallery: swipe/scroll-snap slides, thumbnail rail, tap to zoom ─
+    {
+      const d = document.getElementById('qx-5')!;
+      const viewer = d.querySelector<HTMLElement>('[data-v5-viewer]')!;
+      const zooms = [...d.querySelectorAll<HTMLButtonElement>('[data-v5-zoom]')];
+      const thumbs = [...d.querySelectorAll<HTMLButtonElement>('[data-v5-go]')];
+      const count = d.querySelector<HTMLElement>('[data-v5-count]')!;
+      const hint = d.querySelector<HTMLElement>('[data-v5-hint]')!;
+      let index = 0;
+      const zoomWord = matchMedia('(pointer: fine)').matches ? 'Click to zoom' : 'Tap to zoom';
+      hint.textContent = zoomWord;
+
+      const unzoom = () => {
+        zooms.forEach((z) => {
+          z.setAttribute('aria-pressed', 'false');
+          z.setAttribute('aria-label', z.getAttribute('aria-label')!.replace(/^Zoom out/, 'Zoom in'));
+        });
+        viewer.classList.remove('is-zoomed');
+        hint.textContent = zoomWord;
+      };
+      const setActive = (i: number) => {
+        index = i;
+        thumbs.forEach((t, n) => t.setAttribute('aria-current', String(n === i)));
+        count.textContent = `${i + 1} / ${zooms.length}`;
+      };
+      const go = (i: number) => {
+        const n = (i + zooms.length) % zooms.length;
+        unzoom();
+        viewer.scrollTo({ left: n * viewer.clientWidth, behavior: reduce.matches ? 'auto' : 'smooth' });
+        setActive(n);
+      };
+      viewer.addEventListener(
+        'scroll',
+        () => {
+          const i = Math.round(viewer.scrollLeft / Math.max(1, viewer.clientWidth));
+          if (i !== index) {
+            unzoom();
+            setActive(i);
+          }
+        },
+        { passive: true },
+      );
+      thumbs.forEach((t) => t.addEventListener('click', () => go(Number(t.dataset.v5Go))));
+      d.querySelectorAll<HTMLButtonElement>('[data-v5-step]').forEach((b) =>
+        b.addEventListener('click', () => go(index + Number(b.dataset.v5Step))),
+      );
+      viewer.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') go(index - 1);
+        if (e.key === 'ArrowRight') go(index + 1);
+      });
+      const aim = (z: HTMLElement, e: PointerEvent | MouseEvent) => {
+        const r = z.getBoundingClientRect();
+        if (!e.clientX && !e.clientY) return; // keyboard click: zoom into the centre
+        z.style.setProperty('--ox', `${((e.clientX - r.left) / r.width) * 100}%`);
+        z.style.setProperty('--oy', `${((e.clientY - r.top) / r.height) * 100}%`);
+      };
+      zooms.forEach((z) => {
+        z.addEventListener('click', (e) => {
+          const on = z.getAttribute('aria-pressed') !== 'true';
+          if (on) aim(z.querySelector('.v5__zoomer')!, e);
+          z.setAttribute('aria-pressed', String(on));
+          z.setAttribute('aria-label', z.getAttribute('aria-label')!.replace(on ? /^Zoom in/ : /^Zoom out/, on ? 'Zoom out' : 'Zoom in'));
+          viewer.classList.toggle('is-zoomed', on);
+          hint.textContent = on ? zoomWord.replace('zoom', 'zoom out') : zoomWord;
+        });
+        // While zoomed, the zoom point follows the pointer (or finger).
+        z.addEventListener('pointermove', (e) => {
+          if (z.getAttribute('aria-pressed') === 'true') aim(z.querySelector('.v5__zoomer')!, e);
+        });
+      });
+      d.addEventListener('qx:open', () => {
+        unzoom();
+        viewer.scrollLeft = 0;
+        setActive(0);
+      });
+    }
+
+    // ── 6 · Snap sheet: peek ↔ full, drag the handle, drag down to close ──
+    {
+      const d = document.getElementById('qx-6') as HTMLDialogElement;
+      const top = d.querySelector<HTMLElement>('[data-v6-top]')!;
+      const more = d.querySelector<HTMLElement>('#v6-more')!;
+      const drag = d.querySelector<HTMLElement>('[data-v6-drag]')!;
+      const toggles = [...d.querySelectorAll<HTMLButtonElement>('[data-v6-toggle]')];
+
+      const measure = () => d.style.setProperty('--peek', `${top.offsetHeight}px`);
+      const setSnap = (s: 'peek' | 'full') => {
+        d.dataset.snap = s;
+        more.inert = s === 'peek';
+        if (s === 'peek') more.scrollTop = 0;
+        toggles.forEach((t) => t.setAttribute('aria-expanded', String(s === 'full')));
+        d.querySelector('[data-v6-label]')!.textContent = s === 'full' ? 'Less' : 'More details';
+        d.querySelector('[data-v6-sr]')!.textContent = s === 'full' ? 'Show less' : 'Show more details';
+      };
+      new ResizeObserver(measure).observe(top);
+      d.addEventListener('qx:open', () => {
+        setSnap('peek');
+        measure();
+      });
+      toggles.forEach((t) =>
+        t.addEventListener('click', () => {
+          if (d.hasAttribute('data-dragged')) return;
+          setSnap(d.dataset.snap === 'full' ? 'peek' : 'full');
+        }),
+      );
+
+      let startY = 0;
+      let startOffset = 0;
+      let pointerId = -1;
+      let moved = false;
+      let lastY = 0;
+      let lastT = 0;
+      let velocity = 0;
+      drag.addEventListener('pointerdown', (e) => {
+        if ((e.target as Element).closest('[data-close]') || e.button !== 0) return;
+        pointerId = e.pointerId;
+        moved = false;
+        startY = lastY = e.clientY;
+        lastT = e.timeStamp;
+        velocity = 0;
+        startOffset = new DOMMatrix(getComputedStyle(d).transform).m42;
+      });
+      drag.addEventListener('pointermove', (e) => {
+        if (e.pointerId !== pointerId) return;
+        const dy = e.clientY - startY;
+        if (!moved) {
+          if (Math.abs(dy) < 6) return;
+          moved = true;
+          drag.setPointerCapture(pointerId);
+          d.classList.add('is-dragging');
+        }
+        d.style.transform = `translateY(${Math.max(0, startOffset + dy)}px)`;
+        const dt = Math.max(1, e.timeStamp - lastT);
+        velocity = (e.clientY - lastY) / dt;
+        lastY = e.clientY;
+        lastT = e.timeStamp;
+      });
+      const end = (e: PointerEvent) => {
+        if (e.pointerId !== pointerId) return;
+        pointerId = -1;
+        if (!moved) return;
+        const y = startOffset + (e.clientY - startY);
+        const peekY = d.offsetHeight - top.offsetHeight;
+        d.classList.remove('is-dragging');
+        d.style.transform = '';
+        // Swallow the click that follows the drag (toggle button / backdrop).
+        d.setAttribute('data-dragged', '');
+        setTimeout(() => d.removeAttribute('data-dragged'), 0);
+        const dy = e.clientY - startY;
+        const fromFull = startOffset < 10;
+        if (y > peekY + 90 || (!fromFull && velocity > 0.9)) d.close();
+        else if (fromFull) setSnap(dy > 80 || velocity > 0.5 ? 'peek' : 'full');
+        else setSnap(dy < -60 || velocity < -0.5 ? 'full' : 'peek');
+      };
+      drag.addEventListener('pointerup', end);
+      drag.addEventListener('pointercancel', end);
+    }
+
+    // ── 8 · Related finds: swap the product in place ──────────────────────
+    {
+      const d = document.getElementById('qx-8')!;
+      const finds: Find[] = JSON.parse(document.getElementById('v8-data')!.textContent || '[]');
+      const main = d.querySelector<HTMLElement>('[data-v8-main]')!;
+      const img = d.querySelector<HTMLImageElement>('[data-v8-img]')!;
+      const name = d.querySelector<HTMLElement>('[data-v8-name]')!;
+      const show = (id: string, focus: boolean) => {
+        const f = finds.find((x) => x.id === id);
+        if (!f) return;
+        const apply = () => {
+          img.removeAttribute('srcset');
+          img.src = f.src;
+          if (f.srcset) img.srcset = f.srcset;
+          img.alt = f.alt;
+          name.textContent = f.name;
+          d.querySelector('[data-v8-cat]')!.textContent = f.category;
+          d.querySelector('[data-v8-desc]')!.textContent = f.description;
+          d.querySelector<HTMLElement>('[data-v8-price]')!.dataset.priceUsd = String(f.price);
+          (window as any).beaFormatPrices?.(main);
+          d.querySelectorAll<HTMLElement>('[data-v8-item]').forEach((li) => (li.hidden = li.dataset.v8Item === id));
+          main.classList.remove('is-swapping');
+          if (focus) {
+            d.querySelector<HTMLElement>('.v8__scroll')!.scrollTo({ top: 0, behavior: reduce.matches ? 'auto' : 'smooth' });
+            name.focus({ preventScroll: true });
+          }
+        };
+        if (reduce.matches || !focus) return apply();
+        main.classList.add('is-swapping');
+        setTimeout(apply, 180);
+      };
+      d.querySelectorAll<HTMLButtonElement>('[data-v8-pick]').forEach((b) =>
+        b.addEventListener('click', () => show(b.dataset.v8Pick!, true)),
+      );
+      d.addEventListener('qx:open', () => show(finds[0].id, false));
+    }
+
+    // ── Mock frames ───────────────────────────────────────────────────────
+    if (mockId) {
+      openDialog(mockId);
+      const d = document.getElementById(`qx-${mockId}`);
+      const scrim = d && getComputedStyle(d).getPropertyValue('--qx-scrim').trim();
+      if (scrim) document.documentElement.style.setProperty('--qo-scrim', scrim);
+    } else {
+      // Scale each iframe to its frame, and only load it when it nears the viewport.
+      const ro = new ResizeObserver((entries) =>
+        entries.forEach((en) => {
+          const el = en.target as HTMLElement;
+          el.style.setProperty('--s', String(el.clientWidth / Number(el.dataset.w)));
+        }),
+      );
+      document.querySelectorAll<HTMLElement>('.qo-dev__screen').forEach((s) => ro.observe(s));
+      const io = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((en) => {
+            if (!en.isIntersecting) return;
+            const f = en.target as HTMLIFrameElement;
+            f.src = f.dataset.src!;
+            io.unobserve(f);
+          }),
+        { rootMargin: '600px 0px' },
+      );
+      document.querySelectorAll<HTMLIFrameElement>('iframe[data-src]').forEach((f) => io.observe(f));
+    }
+  </script>
+</Base>

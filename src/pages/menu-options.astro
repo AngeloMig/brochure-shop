@@ -1,0 +1,3050 @@
+---
+import { withBase } from '../lib/paths';
+/**
+ * Preview page: ten mobile hamburger-menu concepts to choose from.
+ * Visit /menu-options. Not linked from the site and hidden from search.
+ *
+ * Every option is a live phone frame with a mini catalog inside: tap the menu
+ * button to open it, tap again / the scrim / Esc to close. All positioning is
+ * contained in the frame (absolute, never fixed). Once one is chosen it moves
+ * into Header.astro and this page can be deleted.
+ */
+import '@fontsource/instrument-serif/latin-400-italic.css';
+import Base from '../layouts/Base.astro';
+import { site } from '../config/site';
+import { products, categories } from '../data/products';
+
+const handle = site.tiktokHandle;
+const tiktok = site.tiktokProfileUrl;
+const phoneNo = site.contact.whatsapp;
+const digits = phoneNo.replace(/\D/g, '');
+const wa = `https://wa.me/${digits}`;
+const viber = `viber://chat?number=%2B${digits}`;
+const email = site.contact.email;
+const mail = `mailto:${email}`;
+
+const phpFmt = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
+const php = (usd: number) => `≈ ${phpFmt.format(usd * site.currency.usdToPhp)}`;
+const byId = (id: string) => products.find((x) => x.id === id)!;
+
+const hints: Record<string, string> = {
+  Featured: 'Top picks right now',
+  'All Finds': 'Every product, by category',
+  Videos: 'Watch them on TikTok',
+  About: 'Who’s behind bea',
+  'How buying works': 'Prices, shipping & returns',
+};
+const nav = [...site.nav, ...site.footerNav].map((l) => ({ ...l, hint: hints[l.label] ?? '' }));
+const main = nav.slice(0, 4);
+const how = nav[4];
+
+const cards = [
+  { id: 'athena-body-wash', short: 'Athena Body Wash' },
+  { id: 'grace-glow-rouge-540', short: 'Rouge 540 Body Wash' },
+  { id: 'grace-glow-english-pear', short: 'English Pear Body Wash' },
+].map((c) => ({ name: c.short, img: withBase(`/images/products/${c.id}.webp`), price: php(byId(c.id).price ?? 0) }));
+
+const pick = byId('athena-body-wash');
+const pickPrice = php(pick.price ?? 0);
+
+const cats = categories.map((name) => ({ name, count: products.filter((p) => p.category === name).length }));
+const totalFinds = products.length;
+
+const contacts = [
+  { label: 'WhatsApp', href: wa, icon: 'chat' },
+  { label: 'Viber', href: viber, icon: 'phone' },
+  { label: 'Email', href: mail, icon: 'mail' },
+] as const;
+
+const ico = {
+  play: '<svg viewBox="0 0 8 10" width="8" height="10" aria-hidden="true"><path d="M0 0v10l8-5z" fill="currentColor"/></svg>',
+  arrow:
+    '<svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M1 7h11M7.5 2.5 12 7l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  ext: '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  close:
+    '<svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><path d="M1.5 1.5l11 11M12.5 1.5l-11 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  tiktok:
+    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V9.66c-3.45-.46-6.47 2.22-6.47 5.64 0 3.33 2.76 5.7 5.69 5.7 3.14 0 5.69-2.55 5.69-5.7V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3s-1.88.09-3.24-1.48Z"/></svg>',
+  chat: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 11.6a8.1 8.1 0 0 1-11.9 7.1L4 20l1.4-3.9A8.1 8.1 0 1 1 20 11.6Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9.2 8.6c.3 2.6 2.4 4.9 5.2 5.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  phone:
+    '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7 3.8h2.4l1.3 3.8-1.8 1.2a10.4 10.4 0 0 0 6.3 6.3l1.2-1.8 3.8 1.3V17a2 2 0 0 1-2.2 2A15.2 15.2 0 0 1 5 6a2 2 0 0 1 2-2.2Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  mail: '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m4.5 7.5 7.5 5.5 7.5-5.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  search:
+    '<svg viewBox="0 0 20 20" width="17" height="17" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m13 13 4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  chevron:
+    '<svg viewBox="0 0 12 8" width="11" height="7" aria-hidden="true"><path d="m1 1.5 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+
+const options = [
+  {
+    n: 1,
+    name: 'Refined pill',
+    note: 'Today’s menu, polished. The bar floats into a frosted oval, the card unrolls from under it and the links rise in turn. The smallest change and the most familiar.',
+    keep: true,
+  },
+  {
+    n: 2,
+    name: 'Editorial takeover',
+    note: 'A charcoal curtain drops over the page and huge links rise line by line, like a magazine. TikTok and the business contact sit at the bottom.',
+    keep: true,
+  },
+  {
+    n: 3,
+    name: 'Thumb sheet',
+    note: 'The menu slides up from the bottom, within thumb reach: big rows with a hint under each, plus one-tap TikTok, WhatsApp, Viber and email. Drag the handle down to close.',
+    keep: false,
+  },
+  {
+    n: 4,
+    name: 'Ruby reveal',
+    note: 'A round button that the menu grows out of, as a ruby circle filling the screen. Bold and playful: the one place the accent goes big.',
+    keep: true,
+  },
+  {
+    n: 5,
+    name: 'Menu + top pick',
+    note: 'A drop-down with the links on one side and today’s top pick on the other, so the menu also sells. The pick can change as often as you like.',
+    keep: true,
+  },
+  {
+    n: 6,
+    name: 'Morphing pill',
+    note: 'The Menu pill itself stretches into the panel and shrinks back on close, so button and menu feel like one object. Dark, compact, app-like.',
+    keep: true,
+  },
+  {
+    n: 7,
+    name: 'Shop by category',
+    note: 'Search and the six categories come first, then the page links. Best if most visitors arrive looking for a type of product.',
+    keep: true,
+  },
+  {
+    n: 8,
+    name: 'Drawer, 3D tilt',
+    note: 'A drawer of stacked link cards slides in from the right while the page tilts back behind it. Tap the page edge or × to return.',
+    keep: false,
+  },
+  {
+    n: 9,
+    name: 'The dot',
+    note: 'The ruby dot in “bea.” is the menu button. Tapping it blooms into a small floating bubble with the links. The quietest header possible.',
+    keep: true,
+  },
+  {
+    n: 10,
+    name: 'Serif ticker',
+    note: 'The logo’s italic serif, set large: links slide in one by one over a slow “bea.” marquee in ruby. The most on-brand of the ten.',
+    keep: true,
+  },
+];
+---
+
+<Base noindex title="Mobile menu options — bea">
+  <div class="lab">
+    <header class="lab__head">
+      <p class="eyebrow">Preview</p>
+      <h1 class="display lab__title">Mobile menu — 10 options</h1>
+      <p class="lede">
+        Each phone is live. Tap its menu button to open the menu, then tap the button again, the dimmed page or press
+        Esc to close. Every option has the five links, a way to follow on TikTok and a clear close. Tell me the number
+        you like.
+      </p>
+    </header>
+
+    <nav class="jump" aria-label="Jump to option">
+      {options.map((o) => <a href={`#option-${o.n}`}>{o.n}</a>)}
+    </nav>
+
+    <div class="grid">
+      {
+        options.map((o) => (
+          <section class="opt" id={`option-${o.n}`} aria-labelledby={`opt-name-${o.n}`}>
+            <div class="opt__meta">
+              <h2 id={`opt-name-${o.n}`} class="opt__name">
+                <span class="opt__num">{o.n}</span> {o.name}
+              </h2>
+              <p class="opt__note">{o.note}</p>
+            </div>
+
+            <div class={`phone m${o.n}`} data-phone data-keep-toggle={o.keep ? '' : undefined}>
+              <div class="ph-screen" data-screen>
+                <div class="ph-world" data-world>
+                  <header class="ph-head">
+                    {o.n === 9 ? (
+                      <span class="m9-brand">
+                        <a class="ph-mark" href="#top" data-demo aria-label="bea home">
+                          <span class="ph-mark__w">bea</span>
+                        </a>
+                        <button
+                          class="tg tg9"
+                          type="button"
+                          aria-expanded="false"
+                          aria-controls="m9-menu"
+                          aria-label="Menu"
+                          data-toggle
+                        >
+                          <span class="tg9__ring" aria-hidden="true" />
+                          <span class="tg9__dot" aria-hidden="true">
+                            <span class="tg9__x">
+                              <i />
+                              <i />
+                            </span>
+                          </span>
+                        </button>
+                      </span>
+                    ) : (
+                      <a class="ph-mark" href="#top" data-demo aria-label="bea home">
+                        <span class="ph-mark__w">
+                          bea
+                          <i class="ph-mark__dot" />
+                        </span>
+                      </a>
+                    )}
+
+                    {(o.n === 1 || o.n === 6) && (
+                      <button
+                        class={`tg tg-ink tg${o.n}`}
+                        type="button"
+                        aria-expanded="false"
+                        aria-controls={`m${o.n}-menu`}
+                        aria-label="Menu"
+                        data-toggle
+                      >
+                        <span class="roll" aria-hidden="true">
+                          <span>Menu</span>
+                          <span>Close</span>
+                        </span>
+                        <span class="lines" aria-hidden="true">
+                          <i />
+                          <i />
+                        </span>
+                      </button>
+                    )}
+                    {o.n === 2 && (
+                      <button class="tg tg2" type="button" aria-expanded="false" aria-controls="m2-menu" aria-label="Menu" data-toggle>
+                        <span class="roll" aria-hidden="true">
+                          <span>Menu</span>
+                          <span>Close</span>
+                        </span>
+                        <span class="plus" aria-hidden="true">
+                          <i />
+                          <i />
+                        </span>
+                      </button>
+                    )}
+                    {o.n === 3 && (
+                      <button class="tg tg3" type="button" aria-expanded="false" aria-controls="m3-menu" aria-label="Menu" data-toggle>
+                        <span>Menu</span>
+                        <span class="lines lines--3" aria-hidden="true">
+                          <i />
+                          <i />
+                          <i />
+                        </span>
+                      </button>
+                    )}
+                    {o.n === 4 && (
+                      <button class="tg tg4" type="button" aria-expanded="false" aria-controls="m4-menu" aria-label="Menu" data-toggle>
+                        <span class="lines" aria-hidden="true">
+                          <i />
+                          <i />
+                        </span>
+                      </button>
+                    )}
+                    {o.n === 5 && (
+                      <button class="tg tg5" type="button" aria-expanded="false" aria-controls="m5-menu" aria-label="Menu" data-toggle>
+                        <span>Menu</span>
+                        <span class="ico tg5__chev">
+                          <Fragment set:html={ico.chevron} />
+                        </span>
+                      </button>
+                    )}
+                    {o.n === 7 && (
+                      <button class="tg tg7" type="button" aria-expanded="false" aria-controls="m7-menu" aria-label="Menu" data-toggle>
+                        <span class="tg7__icons" aria-hidden="true">
+                          <span class="ico tg7__search">
+                            <Fragment set:html={ico.search} />
+                          </span>
+                          <span class="ico tg7__x">
+                            <Fragment set:html={ico.close} />
+                          </span>
+                        </span>
+                        <span class="roll" aria-hidden="true">
+                          <span>Menu</span>
+                          <span>Close</span>
+                        </span>
+                      </button>
+                    )}
+                    {o.n === 8 && (
+                      <button class="tg tg8" type="button" aria-expanded="false" aria-controls="m8-menu" aria-label="Menu" data-toggle>
+                        <span class="lines lines--8" aria-hidden="true">
+                          <i />
+                          <i />
+                          <i />
+                        </span>
+                      </button>
+                    )}
+                    {o.n === 10 && (
+                      <button class="tg tg10" type="button" aria-expanded="false" aria-controls="m10-menu" aria-label="Menu" data-toggle>
+                        <span class="roll roll--serif" aria-hidden="true">
+                          <span>
+                            Menu<i />
+                          </span>
+                          <span>
+                            Close<i />
+                          </span>
+                        </span>
+                      </button>
+                    )}
+                  </header>
+
+                  {/* Mini catalog behind the menu (decorative) */}
+                  <div class="ph-page" data-page aria-hidden="true">
+                    <div class="fp-hero">
+                      <img src={withBase('/images/hero.jpg')} alt="" loading="lazy" />
+                      <div class="fp-hero__text">
+                        <p class="fp-eyebrow">@{handle}</p>
+                        <p class="display fp-h">My favorite finds, all in one place.</p>
+                        <span class="fp-pill">Explore my finds</span>
+                      </div>
+                    </div>
+                    <div class="fp-sec">
+                      <p class="display fp-h2">Top picks right now</p>
+                      <div class="fp-grid">
+                        {cards.map((c) => (
+                          <div class="fp-card">
+                            <div class="fp-img">
+                              <img src={c.img} alt="" loading="lazy" />
+                            </div>
+                            <p class="fp-name">{c.name}</p>
+                            <p class="fp-price">{c.price}</p>
+                          </div>
+                        ))}
+                        <div class="fp-card">
+                          <div class="fp-img fp-img--more">
+                            <span>See all {totalFinds} finds</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="fp-sec">
+                      <p class="display fp-h2">Watch on TikTok</p>
+                      <div class="fp-vids">
+                        {cards.map((c) => (
+                          <div class="fp-vid">
+                            <img src={c.img} alt="" loading="lazy" />
+                            <span class="fp-vid__play">
+                              <Fragment set:html={ico.play} />
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ph-scrim" data-scrim />
+
+                {/* ───────────── 1 · Refined pill ───────────── */}
+                {o.n === 1 && (
+                  <div class="panel p1" id="m1-menu" data-panel hidden>
+                    <nav aria-label="Menu">
+                      <ul role="list" class="p1-list">
+                        {main.map((l, i) => (
+                          <li style={`--i:${i}`}>
+                            <a class="display p1-link" href={l.href} data-demo>
+                              {l.label}
+                              <span class="ico">
+                                <Fragment set:html={ico.play} />
+                              </span>
+                            </a>
+                          </li>
+                        ))}
+                        <li style="--i:4">
+                          <a class="p1-how" href={how.href} data-demo>
+                            {how.label}
+                            <span class="ico">
+                              <Fragment set:html={ico.arrow} />
+                            </span>
+                          </a>
+                        </li>
+                      </ul>
+                    </nav>
+                    <a class="p1-follow" style="--i:5" href={tiktok} target="_blank" rel="noopener">
+                      <span class="ico">
+                        <Fragment set:html={ico.tiktok} />
+                      </span>
+                      Follow @{handle} on TikTok
+                      <span class="visually-hidden"> (opens in a new tab)</span>
+                    </a>
+                  </div>
+                )}
+
+                {/* ───────────── 2 · Editorial takeover ───────────── */}
+                {o.n === 2 && (
+                  <div class="panel p2" id="m2-menu" data-panel hidden>
+                    <nav aria-label="Menu">
+                      <ol role="list" class="p2-list">
+                        {main.map((l, i) => (
+                          <li style={`--i:${i}`}>
+                            <a class="display p2-link" href={l.href} data-demo>
+                              <span class="p2-mask">
+                                <span class="p2-word">{l.label}</span>
+                              </span>
+                              <span class="p2-num">0{i + 1}</span>
+                            </a>
+                          </li>
+                        ))}
+                      </ol>
+                      <a class="p2-how" href={how.href} data-demo>
+                        {how.label}
+                        <span class="ico">
+                          <Fragment set:html={ico.arrow} />
+                        </span>
+                      </a>
+                    </nav>
+                    <div class="p2-foot">
+                      <a class="p2-tt" href={tiktok} target="_blank" rel="noopener">
+                        <span class="ico">
+                          <Fragment set:html={ico.tiktok} />
+                        </span>
+                        Follow @{handle}
+                        <span class="visually-hidden"> on TikTok (opens in a new tab)</span>
+                      </a>
+                      <div class="p2-biz">
+                        <p class="p2-label">For business</p>
+                        <p>
+                          <a href={wa} target="_blank" rel="noopener">
+                            WhatsApp
+                          </a>{' '}
+                          ·{' '}
+                          <a href={viber}>Viber</a> · {phoneNo}
+                        </p>
+                        <p>
+                          <a href={mail}>{email}</a>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ───────────── 3 · Thumb sheet ───────────── */}
+                {o.n === 3 && (
+                  <div class="panel p3" id="m3-menu" data-panel hidden role="dialog" aria-label="Menu">
+                    <div class="p3-drag" data-drag>
+                      <span class="p3-grab" aria-hidden="true" />
+                      <div class="p3-top">
+                        <p class="p3-title">Menu</p>
+                        <button class="p3-x" type="button" data-close aria-label="Close menu">
+                          <Fragment set:html={ico.close} />
+                        </button>
+                      </div>
+                    </div>
+                    <nav aria-label="Menu">
+                      <ul role="list" class="p3-list">
+                        {nav.map((l, i) => (
+                          <li style={`--i:${i}`}>
+                            <a class="p3-row" href={l.href} data-demo data-autofocus={i === 0 ? '' : undefined}>
+                              <span class="display p3-row__t">{l.label}</span>
+                              <span class="p3-row__h">{l.hint}</span>
+                              <span class="ico p3-row__go">
+                                <Fragment set:html={ico.arrow} />
+                              </span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </nav>
+                    <ul role="list" class="p3-quick" aria-label="Quick actions">
+                      <li style="--i:5">
+                        <a class="p3-q p3-q--tt" href={tiktok} target="_blank" rel="noopener">
+                          <span class="p3-q__ico">
+                            <Fragment set:html={ico.tiktok} />
+                          </span>
+                          Follow
+                          <span class="visually-hidden"> @{handle} on TikTok (opens in a new tab)</span>
+                        </a>
+                      </li>
+                      {contacts.map((c, i) => (
+                        <li style={`--i:${6 + i}`}>
+                          <a class="p3-q" href={c.href} target={c.icon === 'chat' ? '_blank' : undefined} rel="noopener">
+                            <span class="p3-q__ico">
+                              <Fragment set:html={ico[c.icon]} />
+                            </span>
+                            {c.label}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* ───────────── 4 · Ruby reveal ───────────── */}
+                {o.n === 4 && (
+                  <div class="panel p4" id="m4-menu" data-panel hidden>
+                    <nav aria-label="Menu">
+                      <ul role="list" class="p4-list">
+                        {main.map((l, i) => (
+                          <li style={`--i:${i}`}>
+                            <a class="display p4-link" href={l.href} data-demo>
+                              {l.label}
+                              <span class="ico">
+                                <Fragment set:html={ico.play} />
+                              </span>
+                            </a>
+                          </li>
+                        ))}
+                        <li style="--i:4">
+                          <a class="p4-how" href={how.href} data-demo>
+                            {how.label}
+                            <span class="ico">
+                              <Fragment set:html={ico.arrow} />
+                            </span>
+                          </a>
+                        </li>
+                      </ul>
+                    </nav>
+                    <div class="p4-foot">
+                      <a class="p4-tt" href={tiktok} target="_blank" rel="noopener">
+                        <span class="ico">
+                          <Fragment set:html={ico.tiktok} />
+                        </span>
+                        Follow @{handle}
+                        <span class="visually-hidden"> on TikTok (opens in a new tab)</span>
+                      </a>
+                      <p class="p4-biz">
+                        Business: <a href={wa} target="_blank" rel="noopener">WhatsApp</a> ·{' '}
+                        <a href={viber}>Viber</a> · <a href={mail}>Email</a>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* ───────────── 5 · Menu + top pick ───────────── */}
+                {o.n === 5 && (
+                  <div class="panel p5" id="m5-menu" data-panel hidden>
+                    <div class="p5-grid">
+                      <nav aria-label="Menu">
+                        <ul role="list" class="p5-list">
+                          {nav.map((l, i) => (
+                            <li style={`--i:${i}`}>
+                              <a class={`p5-link ${i < 4 ? 'display' : 'p5-link--how'}`} href={l.href} data-demo>
+                                {l.label}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </nav>
+                      <article class="p5-pick" aria-labelledby="m5-pick-name">
+                        <div class="p5-pick__img">
+                          <img src={withBase('/images/products/athena-body-wash.webp')} alt="" loading="lazy" />
+                        </div>
+                        <p class="p5-pick__eyebrow">
+                          <i aria-hidden="true" />
+                          Today’s top pick
+                        </p>
+                        <h3 id="m5-pick-name" class="p5-pick__name">
+                          {pick.name}
+                        </h3>
+                        <p class="p5-pick__price">
+                          {pickPrice}
+                          <span>Final price on TikTok</span>
+                        </p>
+                        <a class="p5-pick__cta" href="https://www.tiktok.com/shop" target="_blank" rel="noopener">
+                          View on TikTok
+                          <span class="visually-hidden"> (opens in a new tab)</span>
+                        </a>
+                      </article>
+                    </div>
+                    <a class="p5-follow" href={tiktok} target="_blank" rel="noopener">
+                      <span class="ico">
+                        <Fragment set:html={ico.tiktok} />
+                      </span>
+                      Follow @{handle} on TikTok
+                      <span class="visually-hidden"> (opens in a new tab)</span>
+                    </a>
+                  </div>
+                )}
+
+                {/* ───────────── 6 · Morphing pill ───────────── */}
+                {o.n === 6 && (
+                  <div class="panel p6" id="m6-menu" data-panel hidden>
+                    <span class="p6-mark" aria-hidden="true">
+                      <span>
+                        bea<i />
+                      </span>
+                    </span>
+                    <nav aria-label="Menu">
+                      <ul role="list" class="p6-list">
+                        {main.map((l, i) => (
+                          <li style={`--i:${i}`}>
+                            <a class="display p6-link" href={l.href} data-demo>
+                              {l.label}
+                              <span class="ico">
+                                <Fragment set:html={ico.play} />
+                              </span>
+                            </a>
+                          </li>
+                        ))}
+                        <li style="--i:4">
+                          <a class="p6-how" href={how.href} data-demo>
+                            {how.label}
+                            <span class="ico">
+                              <Fragment set:html={ico.arrow} />
+                            </span>
+                          </a>
+                        </li>
+                      </ul>
+                    </nav>
+                    <div class="p6-foot" style="--i:5">
+                      <a class="p6-tt" href={tiktok} target="_blank" rel="noopener">
+                        <span class="ico">
+                          <Fragment set:html={ico.tiktok} />
+                        </span>
+                        Follow on TikTok
+                        <span class="visually-hidden"> (opens in a new tab)</span>
+                      </a>
+                      <div class="p6-contact">
+                        {contacts.map((c) => (
+                          <a href={c.href} target={c.icon === 'chat' ? '_blank' : undefined} rel="noopener">
+                            <Fragment set:html={ico[c.icon]} />
+                            {c.label}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ───────────── 7 · Shop by category ───────────── */}
+                {o.n === 7 && (
+                  <div class="panel p7" id="m7-menu" data-panel hidden>
+                    <form class="p7-search" role="search" data-search style="--i:0">
+                      <label class="visually-hidden" for="m7-q">
+                        Search finds
+                      </label>
+                      <span class="ico">
+                        <Fragment set:html={ico.search} />
+                      </span>
+                      <input id="m7-q" type="search" placeholder={`Search ${totalFinds} finds`} autocomplete="off" />
+                    </form>
+                    <p class="p7-label" style="--i:1">
+                      Shop by category
+                    </p>
+                    <ul role="list" class="p7-cats">
+                      {cats.map((c, i) => (
+                        <li style={`--i:${i + 1}`}>
+                          <a class="p7-cat" href="#all-finds" data-demo data-autofocus={i === 0 ? '' : undefined}>
+                            <span>{c.name}</span>
+                            <span class="p7-cat__n">{c.count}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                    <nav aria-label="Menu">
+                      <p class="p7-label" style="--i:7">
+                        Explore
+                      </p>
+                      <ul role="list" class="p7-list">
+                        {nav.map((l, i) => (
+                          <li style={`--i:${i + 7}`}>
+                            <a class="p7-link" href={l.href} data-demo>
+                              <span class={i < 4 ? 'display' : ''}>{l.label}</span>
+                              <span class="ico">
+                                <Fragment set:html={i < 4 ? ico.play : ico.arrow} />
+                              </span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </nav>
+                    <a class="p7-tt" style="--i:12" href={tiktok} target="_blank" rel="noopener">
+                      <span class="ico">
+                        <Fragment set:html={ico.tiktok} />
+                      </span>
+                      Follow @{handle} on TikTok
+                      <span class="visually-hidden"> (opens in a new tab)</span>
+                    </a>
+                  </div>
+                )}
+
+                {/* ───────────── 8 · Drawer, 3D tilt ───────────── */}
+                {o.n === 8 && (
+                  <div class="panel p8" id="m8-menu" data-panel hidden role="dialog" aria-label="Menu">
+                    <div class="p8-top">
+                      <span class="p8-mark" aria-hidden="true">
+                        bea<i />
+                      </span>
+                      <button class="p8-x" type="button" data-close aria-label="Close menu">
+                        <Fragment set:html={ico.close} />
+                      </button>
+                    </div>
+                    <nav aria-label="Menu">
+                      <ul role="list" class="p8-list">
+                        {nav.map((l, i) => (
+                          <li style={`--i:${i}`}>
+                            <a class="p8-card" href={l.href} data-demo data-autofocus={i === 0 ? '' : undefined}>
+                              <span class="display p8-card__t">{l.label}</span>
+                              <span class="p8-card__h">{l.hint}</span>
+                              <span class="ico p8-card__go">
+                                <Fragment set:html={ico.arrow} />
+                              </span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </nav>
+                    <div class="p8-foot" style="--i:5">
+                      <a class="p8-tt" href={tiktok} target="_blank" rel="noopener">
+                        <span class="ico">
+                          <Fragment set:html={ico.tiktok} />
+                        </span>
+                        Follow on TikTok
+                        <span class="visually-hidden"> (opens in a new tab)</span>
+                      </a>
+                      {contacts.map((c) => (
+                        <a class="p8-c" href={c.href} target={c.icon === 'chat' ? '_blank' : undefined} rel="noopener" aria-label={c.label}>
+                          <Fragment set:html={ico[c.icon]} />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ───────────── 9 · The dot ───────────── */}
+                {o.n === 9 && (
+                  <div class="panel p9" id="m9-menu" data-panel hidden>
+                    <nav aria-label="Menu">
+                      <ul role="list" class="p9-list">
+                        {nav.map((l, i) => (
+                          <li style={`--i:${i}`}>
+                            <a class="p9-row" href={l.href} data-demo>
+                              {l.label}
+                              <span class="ico">
+                                <Fragment set:html={ico.arrow} />
+                              </span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </nav>
+                    <a class="p9-row p9-tt" style="--i:5" href={tiktok} target="_blank" rel="noopener">
+                      <span>
+                        Follow @{handle}
+                        <span class="visually-hidden"> on TikTok (opens in a new tab)</span>
+                      </span>
+                      <span class="ico">
+                        <Fragment set:html={ico.tiktok} />
+                      </span>
+                    </a>
+                    <div class="p9-contact" style="--i:6">
+                      {contacts.map((c) => (
+                        <a href={c.href} target={c.icon === 'chat' ? '_blank' : undefined} rel="noopener" aria-label={c.label}>
+                          <Fragment set:html={ico[c.icon]} />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* ───────────── 10 · Serif ticker ───────────── */}
+                {o.n === 10 && (
+                  <div class="panel p10" id="m10-menu" data-panel hidden>
+                    <nav aria-label="Menu">
+                      <ol role="list" class="p10-list">
+                        {nav.map((l, i) => (
+                          <li style={`--i:${i}`}>
+                            <a class="p10-link" href={l.href} data-demo>
+                              <span class="p10-n">0{i + 1}</span>
+                              <span class="p10-t">{l.label}</span>
+                            </a>
+                          </li>
+                        ))}
+                      </ol>
+                    </nav>
+                    <div class="p10-foot" style="--i:5">
+                      <a class="p10-tt" href={tiktok} target="_blank" rel="noopener">
+                        <span class="ico">
+                          <Fragment set:html={ico.tiktok} />
+                        </span>
+                        Follow @{handle}
+                        <span class="visually-hidden"> on TikTok (opens in a new tab)</span>
+                      </a>
+                      <p class="p10-biz">
+                        <a href={wa} target="_blank" rel="noopener">
+                          WhatsApp
+                        </a>{' '}
+                        · <a href={viber}>Viber</a> · <a href={mail}>Email</a>
+                      </p>
+                    </div>
+                    <div class="p10-marquee" aria-hidden="true">
+                      <div class="p10-track">
+                        {[0, 1].map(() => (
+                          <span class="p10-group">
+                            {[0, 1, 2, 3].map(() => (
+                              <span class="p10-bea">
+                                bea<i />
+                              </span>
+                            ))}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+
+  <style>
+    /* ── Page ─────────────────────────────────────────────────────────── */
+    .lab {
+      --ios: cubic-bezier(0.32, 0.72, 0, 1);
+      --ios-in: cubic-bezier(0.5, 0, 0.75, 0);
+      --swift: cubic-bezier(0.65, 0, 0.35, 1);
+      max-width: var(--page-max);
+      margin: 0 auto;
+      padding: 48px var(--gutter) 96px;
+      overflow-x: clip;
+    }
+    .lab__head {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .lab__title {
+      font-size: var(--h2);
+    }
+    .jump {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 56px;
+    }
+    .jump a {
+      display: grid;
+      place-items: center;
+      min-width: 44px;
+      height: 44px;
+      border-radius: var(--radius-pill);
+      background: var(--color-panel);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-decoration: none;
+      transition:
+        background-color var(--dur) var(--ease-out),
+        color var(--dur) var(--ease-out);
+    }
+    .jump a:hover {
+      background: var(--color-ink);
+      color: var(--color-on-dark);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+      gap: 72px 32px;
+    }
+    .opt {
+      display: grid;
+      align-content: start;
+      gap: 20px;
+      scroll-margin-top: 24px;
+    }
+    .opt__meta {
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+    @media (min-width: 840px) {
+      .opt__meta {
+        min-height: 136px;
+      }
+    }
+    .opt__name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: var(--text-lg);
+      font-weight: 600;
+    }
+    .opt__num {
+      display: grid;
+      place-items: center;
+      flex: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--color-ink);
+      color: var(--color-on-dark);
+      font-size: var(--text-sm);
+    }
+    .opt__note {
+      color: var(--color-muted);
+      line-height: 1.55;
+      text-wrap: pretty;
+    }
+    .serif,
+    .ph-mark,
+    .p6-mark,
+    .p8-mark,
+    .p10-t,
+    .p10-bea,
+    .roll--serif {
+      font-family: 'Instrument Serif', 'Times New Roman', serif;
+      font-style: italic;
+      font-weight: 400;
+    }
+    .p2-list,
+    .p10-list {
+      list-style: none;
+      padding: 0;
+    }
+    .ico {
+      display: inline-grid;
+      place-items: center;
+      flex: none;
+    }
+
+    /* ── Phone frame ──────────────────────────────────────────────────── */
+    .phone {
+      position: relative;
+      width: 100%;
+      max-width: 384px;
+      margin-inline: auto;
+      padding: 9px;
+      border-radius: 50px;
+      background: #1d1e1b;
+      box-shadow:
+        0 0 0 1px rgb(0 0 0 / 0.04),
+        0 30px 60px -30px rgb(41 43 39 / 0.5);
+    }
+    .ph-screen {
+      position: relative;
+      height: 740px;
+      overflow: hidden;
+      border-radius: 41px;
+      background: var(--color-bg);
+      isolation: isolate;
+      perspective: 1100px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    @media (max-width: 599px) {
+      .phone {
+        max-width: none;
+        padding: 0;
+        border-radius: 28px;
+        background: none;
+        box-shadow:
+          0 0 0 1px var(--color-border),
+          0 20px 40px -28px rgb(41 43 39 / 0.35);
+      }
+      .ph-screen {
+        height: clamp(640px, 86svh, 760px);
+        border-radius: 28px;
+      }
+    }
+
+    .ph-world {
+      position: absolute;
+      inset: 0;
+      background: var(--color-bg);
+    }
+    .ph-page {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 64px 0 28px;
+      scrollbar-width: none;
+    }
+    .ph-page::-webkit-scrollbar {
+      display: none;
+    }
+    .phone[data-open] .ph-page {
+      overflow: hidden;
+    }
+
+    /* Header bar inside the frame */
+    .ph-head {
+      position: absolute;
+      z-index: 30;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 10px 0 18px;
+      border-bottom: 1px solid transparent;
+      background: rgb(255 255 255 / 0.9);
+      -webkit-backdrop-filter: blur(16px) saturate(1.4);
+      backdrop-filter: blur(16px) saturate(1.4);
+      color: var(--color-ink);
+      transition:
+        background-color 360ms var(--ios),
+        border-color 360ms var(--ios),
+        color 360ms var(--ios);
+    }
+    .phone[data-scrolled] .ph-head {
+      border-bottom-color: var(--color-border);
+    }
+    .ph-mark {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      color: inherit;
+      text-decoration: none;
+    }
+    .ph-mark__w {
+      display: inline-flex;
+      align-items: baseline;
+      font-size: 2.125rem;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      padding-bottom: 0.08em;
+    }
+    .ph-mark__dot,
+    .p6-mark i,
+    .p8-mark i,
+    .p10-bea i,
+    .roll--serif i {
+      display: inline-block;
+      width: 0.145em;
+      height: 0.145em;
+      margin-left: 0.035em;
+      border-radius: 50%;
+      background: var(--color-accent);
+    }
+
+    /* ── Mini catalog ─────────────────────────────────────────────────── */
+    .fp-hero {
+      position: relative;
+      height: 360px;
+      margin: 4px 8px 0;
+      overflow: hidden;
+      border-radius: 22px;
+      background: var(--color-panel);
+    }
+    .fp-hero img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 58%;
+    }
+    .fp-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgb(20 21 18 / 0.7), rgb(20 21 18 / 0.25) 55%, rgb(20 21 18 / 0) 75%);
+    }
+    .fp-hero__text {
+      position: absolute;
+      z-index: 1;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      display: grid;
+      justify-items: start;
+      gap: 12px;
+      color: #fff;
+    }
+    .fp-eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0.85;
+    }
+    .fp-h {
+      font-size: 1.85rem;
+      line-height: 0.96;
+    }
+    .fp-pill {
+      display: inline-flex;
+      align-items: center;
+      height: 40px;
+      padding: 0 18px;
+      border-radius: var(--radius-pill);
+      background: #fff;
+      color: var(--color-ink);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .fp-sec {
+      padding: 30px 12px 0;
+    }
+    .fp-h2 {
+      margin: 0 4px 12px;
+      font-size: 1.3rem;
+    }
+    .fp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 8px;
+    }
+    .fp-img {
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 16px;
+      background: var(--color-panel);
+    }
+    .fp-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .fp-img--more {
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .fp-name {
+      margin: 8px 2px 0;
+      font-size: 12.5px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+    .fp-price {
+      margin: 2px 2px 0;
+      color: var(--color-muted);
+      font-size: 12px;
+    }
+    .fp-vids {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .fp-vid {
+      position: relative;
+      aspect-ratio: 9 / 15;
+      overflow: hidden;
+      border-radius: 14px;
+      background: var(--color-panel);
+    }
+    .fp-vid img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scale(1.5);
+    }
+    .fp-vid__play {
+      position: absolute;
+      left: 8px;
+      bottom: 8px;
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      padding-left: 2px;
+      border-radius: 50%;
+      background: rgb(255 255 255 / 0.9);
+    }
+
+    /* ── Scrim + panel basics ─────────────────────────────────────────── */
+    .ph-scrim {
+      position: absolute;
+      inset: 0;
+      z-index: 20;
+      visibility: hidden;
+      opacity: 0;
+      background: rgb(28 29 26 / 0.34);
+      -webkit-backdrop-filter: blur(3px);
+      backdrop-filter: blur(3px);
+      transition:
+        opacity 360ms var(--ios),
+        visibility 0s linear 360ms;
+    }
+    .phone[data-open] .ph-scrim {
+      visibility: visible;
+      opacity: 1;
+      transition:
+        opacity 480ms var(--ios),
+        visibility 0s;
+    }
+    .panel {
+      position: absolute;
+      z-index: 25;
+    }
+    .panel[hidden] {
+      display: none !important;
+    }
+    .p2,
+    .p4,
+    .p6,
+    .m2[data-open] .ph-head,
+    .m4[data-open] .ph-head,
+    .m6[data-open] .tg6 {
+      --color-focus: #fff;
+    }
+
+    /* ── Shared toggle parts ──────────────────────────────────────────── */
+    .tg {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex: none;
+      min-width: 44px;
+      min-height: 44px;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      transition:
+        transform 160ms var(--ease-out),
+        background-color 360ms var(--ios),
+        color 360ms var(--ios),
+        box-shadow 360ms var(--ios);
+    }
+    .tg:active {
+      transform: scale(0.96);
+    }
+    .roll {
+      display: grid;
+      height: 1.4em;
+      overflow: hidden;
+      line-height: 1.4;
+    }
+    .roll > span {
+      grid-area: 1 / 1;
+      transition: transform 560ms var(--ios);
+    }
+    .roll > span + span {
+      transform: translateY(100%);
+    }
+    .tg[aria-expanded='true'] .roll > span:first-child {
+      transform: translateY(-100%);
+    }
+    .tg[aria-expanded='true'] .roll > span + span {
+      transform: none;
+    }
+    .lines {
+      position: relative;
+      width: 16px;
+      height: 10px;
+    }
+    .lines i {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1.5px;
+      border-radius: 2px;
+      background: currentColor;
+      transition:
+        transform 480ms var(--ios),
+        top 480ms var(--ios),
+        opacity 240ms ease,
+        width 480ms var(--ios);
+    }
+    .lines i:first-child {
+      top: 1px;
+    }
+    .lines i:last-child {
+      top: 7.5px;
+    }
+    .tg[aria-expanded='true'] .lines i:first-child {
+      top: 4.25px;
+      transform: rotate(45deg);
+    }
+    .tg[aria-expanded='true'] .lines i:last-child {
+      top: 4.25px;
+      transform: rotate(-45deg);
+    }
+    .tg-ink {
+      height: 44px;
+      padding: 0 16px 0 18px;
+      border-radius: var(--radius-pill);
+      background: var(--color-ink);
+      color: var(--color-on-dark);
+    }
+    @media (hover: hover) {
+      .tg-ink:hover {
+        background: #4a4c46;
+      }
+    }
+
+    /* Links: shared hover nudge for the little arrow/triangle */
+    .panel a .ico {
+      transition:
+        transform var(--dur) var(--ease-out),
+        color var(--dur) var(--ease-out);
+    }
+    @media (hover: hover) {
+      .panel a:hover .ico {
+        transform: translateX(3px);
+      }
+    }
+
+    /* ══════════════ 1 · Refined pill ══════════════ */
+    .m1 .ph-head {
+      transition:
+        top 560ms var(--ios),
+        left 560ms var(--ios),
+        right 560ms var(--ios),
+        height 560ms var(--ios),
+        padding 560ms var(--ios),
+        border-radius 560ms var(--ios),
+        background-color 560ms var(--ios),
+        border-color 560ms var(--ios),
+        box-shadow 560ms var(--ios);
+    }
+    .m1:is([data-scrolled], [data-open]) .ph-head {
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      height: 56px;
+      padding: 0 6px 0 16px;
+      border: 1px solid rgb(41 43 39 / 0.08);
+      border-radius: 999px;
+      background: rgb(255 255 255 / 0.86);
+      box-shadow:
+        0 1px 2px rgb(41 43 39 / 0.04),
+        0 10px 30px -12px rgb(41 43 39 / 0.18);
+    }
+    .m1 .ph-mark__w {
+      transition: font-size 560ms var(--ios);
+    }
+    .m1:is([data-scrolled], [data-open]) .ph-mark__w {
+      font-size: 1.95rem;
+    }
+    .p1 {
+      top: 74px;
+      left: 10px;
+      right: 10px;
+      padding: 8px;
+      border: 1px solid rgb(41 43 39 / 0.08);
+      border-radius: 28px;
+      background: rgb(255 255 255 / 0.97);
+      box-shadow: 0 24px 48px -20px rgb(41 43 39 / 0.35);
+      transform-origin: 85% 0;
+      opacity: 0;
+      transform: translateY(-10px) scale(0.97);
+      clip-path: inset(0 0 55% 0 round 28px);
+      transition:
+        opacity 240ms ease,
+        transform 320ms var(--ios),
+        clip-path 320ms var(--ios);
+    }
+    .m1[data-open] .p1 {
+      opacity: 1;
+      transform: none;
+      clip-path: inset(-20px -40px -70px -40px round 28px);
+      transition:
+        opacity 260ms ease,
+        transform 620ms var(--ios),
+        clip-path 620ms var(--ios);
+    }
+    .p1-list {
+      padding: 4px 16px;
+    }
+    .p1-list li {
+      opacity: 0;
+      transform: translateY(12px);
+      transition:
+        opacity 160ms ease,
+        transform 160ms ease;
+    }
+    .m1[data-open] .p1-list li,
+    .m1[data-open] .p1-follow {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 420ms ease calc(90ms + var(--i) * 45ms),
+        transform 640ms var(--ios) calc(90ms + var(--i) * 45ms);
+    }
+    .p1-list li + li {
+      border-top: 1px solid var(--color-border);
+    }
+    .p1-link,
+    .p1-how {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 60px;
+      text-decoration: none;
+    }
+    .p1-link {
+      font-size: 1.75rem;
+    }
+    .p1-link .ico,
+    .p1-how .ico {
+      color: var(--color-muted);
+    }
+    .p1-how {
+      min-height: 52px;
+      color: var(--color-muted);
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .p1-follow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 52px;
+      margin-top: 4px;
+      padding: 0 18px;
+      border-radius: 20px;
+      background: var(--color-panel);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      text-decoration: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition:
+        opacity 160ms ease,
+        transform 160ms ease;
+    }
+
+    /* ══════════════ 2 · Editorial takeover ══════════════ */
+    .m2:is([data-open], [data-closing]) .ph-head {
+      z-index: 40;
+    }
+    .m2 .ph-head {
+      transition:
+        background-color 300ms ease 260ms,
+        border-color 300ms ease,
+        color 300ms ease 160ms;
+    }
+    :is(.m2, .m4, .m10)[data-open] .ph-head {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    .m2[data-open] .ph-head {
+      border-color: transparent;
+      background: transparent;
+      color: #fff;
+      transition:
+        background-color 200ms ease,
+        border-color 200ms ease,
+        color 300ms ease 120ms;
+    }
+    .tg2 {
+      gap: 10px;
+      padding: 0 8px 0 12px;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .plus {
+      position: relative;
+      width: 14px;
+      height: 14px;
+      transition: transform 560ms var(--ios);
+    }
+    .plus i {
+      position: absolute;
+      top: 6.25px;
+      left: 0;
+      width: 14px;
+      height: 1.5px;
+      border-radius: 2px;
+      background: currentColor;
+    }
+    .plus i + i {
+      transform: rotate(90deg);
+    }
+    .tg2[aria-expanded='true'] .plus {
+      transform: rotate(135deg);
+    }
+    .p2 {
+      inset: 0;
+      z-index: 35;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 96px 22px 24px;
+      overflow-y: auto;
+      scrollbar-width: none;
+      background: var(--color-ink);
+      color: #fff;
+      clip-path: inset(0 0 100% 0);
+      transition: clip-path 480ms var(--swift) 140ms;
+    }
+    .m2[data-open] .p2 {
+      clip-path: inset(0 0 0 0);
+      transition: clip-path 760ms cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    .p2-list li {
+      border-top: 1px solid rgb(255 255 255 / 0.14);
+    }
+    .p2-link {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0 8px;
+      font-size: 2.75rem;
+      line-height: 0.92;
+      text-decoration: none;
+    }
+    .p2-mask {
+      display: block;
+      overflow: hidden;
+      padding-bottom: 0.06em;
+    }
+    .p2-word {
+      display: block;
+      transform: translateY(110%);
+      transition:
+        transform 260ms var(--ios-in),
+        color var(--dur) var(--ease-out);
+    }
+    .m2[data-open] .p2-word {
+      transform: none;
+      transition:
+        transform 860ms var(--ios) calc(300ms + var(--i) * 70ms),
+        color var(--dur) var(--ease-out);
+    }
+    .p2-num,
+    .p2-how,
+    .p2-foot {
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
+    .p2-num {
+      margin-top: 4px;
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: rgb(255 255 255 / 0.5);
+    }
+    .m2[data-open] :is(.p2-num, .p2-how, .p2-foot) {
+      opacity: 1;
+      transition: opacity 500ms ease calc(520ms + var(--i, 4) * 70ms);
+    }
+    @media (hover: hover) {
+      .p2-link:hover .p2-word {
+        color: var(--color-accent-tint);
+      }
+    }
+    .p2-how {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 52px;
+      border-top: 1px solid rgb(255 255 255 / 0.14);
+      font-size: 15px;
+      font-weight: 500;
+      text-decoration: none;
+      color: rgb(255 255 255 / 0.8);
+    }
+    .p2-foot {
+      display: grid;
+      gap: 18px;
+      justify-items: start;
+    }
+    .p2-tt {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      height: 48px;
+      padding: 0 20px 0 16px;
+      border-radius: var(--radius-pill);
+      background: var(--color-accent);
+      color: var(--color-on-accent);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .p2-biz {
+      display: grid;
+      gap: 2px;
+      font-size: 13px;
+      color: rgb(255 255 255 / 0.72);
+    }
+    .p2-biz a {
+      display: inline-block;
+      padding-block: 6px;
+      color: #fff;
+      text-underline-offset: 3px;
+    }
+    .p2-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgb(255 255 255 / 0.5);
+    }
+
+    /* ══════════════ 3 · Thumb sheet ══════════════ */
+    .tg3 {
+      height: 44px;
+      padding: 0 16px 0 18px;
+      border-radius: var(--radius-pill);
+      background: var(--color-panel);
+    }
+    .lines--3 {
+      height: 11px;
+    }
+    .lines--3 i:nth-child(2) {
+      top: 5px;
+      right: 4px;
+    }
+    .lines--3 i:last-child {
+      top: 9px;
+    }
+    .tg[aria-expanded='true'] .lines i:nth-child(2):not(:last-child) {
+      opacity: 0;
+    }
+    .tg[aria-expanded='true'] .lines--3 i:first-child,
+    .tg[aria-expanded='true'] .lines--3 i:last-child {
+      top: 4.75px;
+    }
+    .tg[aria-expanded='true'] .lines--8 i:first-child,
+    .tg[aria-expanded='true'] .lines--8 i:last-child {
+      top: 5.25px;
+    }
+    .m3 .ph-scrim {
+      z-index: 45;
+    }
+    .p3 {
+      left: 6px;
+      right: 6px;
+      bottom: 6px;
+      z-index: 50;
+      max-height: calc(100% - 52px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      padding: 0 12px 12px;
+      border-radius: 34px;
+      background: #fff;
+      box-shadow: 0 -12px 40px -12px rgb(28 29 26 / 0.3);
+      transform: translateY(calc(100% + 16px));
+      transition: transform 440ms var(--ios);
+    }
+    .m3[data-open] .p3 {
+      transform: none;
+      transition: transform 620ms var(--ios);
+    }
+    @media (max-width: 599px) {
+      .p3 {
+        border-radius: 24px;
+      }
+    }
+    .p3-drag {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      margin: 0 -12px;
+      padding: 0 12px;
+      background: #fff;
+      touch-action: none;
+      cursor: grab;
+    }
+    .p3-grab {
+      display: block;
+      width: 38px;
+      height: 5px;
+      margin: 8px auto 2px;
+      border-radius: 3px;
+      background: var(--color-panel-strong);
+    }
+    .p3-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0 4px 8px;
+    }
+    .p3-title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+    .p3-x {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--color-panel);
+      transition: background-color var(--dur) var(--ease-out);
+    }
+    .p3-x:hover {
+      background: var(--color-panel-strong);
+    }
+    .p3-list li {
+      opacity: 0;
+      transform: translateY(18px);
+      transition:
+        opacity 160ms ease,
+        transform 200ms ease;
+    }
+    .m3[data-open] :is(.p3-list li, .p3-quick li) {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 420ms ease calc(140ms + var(--i) * 40ms),
+        transform 680ms var(--ios) calc(140ms + var(--i) * 40ms);
+    }
+    .p3-list li + li .p3-row {
+      border-top: 1px solid var(--color-border);
+    }
+    .p3-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      column-gap: 12px;
+      min-height: 64px;
+      margin: 0 8px;
+      padding: 10px 0;
+      text-decoration: none;
+    }
+    .p3-row__t {
+      font-size: 1.35rem;
+      line-height: 1.05;
+    }
+    .p3-row__h {
+      grid-row: 2;
+      color: var(--color-muted);
+      font-size: 12.5px;
+    }
+    .p3-row__go {
+      grid-row: 1 / 3;
+      grid-column: 2;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--color-panel);
+    }
+    .p3-quick {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+      padding: 12px 6px 4px;
+      border-radius: 24px;
+      background: var(--color-panel);
+    }
+    .p3-quick li {
+      opacity: 0;
+      transform: translateY(18px);
+      transition:
+        opacity 160ms ease,
+        transform 200ms ease;
+    }
+    .p3-q {
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+      padding-bottom: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .p3-q__ico {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform var(--dur) var(--ease-out);
+    }
+    .p3-q:active .p3-q__ico {
+      transform: scale(0.92);
+    }
+    .p3-q--tt .p3-q__ico {
+      background: var(--color-ink);
+      color: var(--color-on-dark);
+    }
+
+    /* ══════════════ 4 · Ruby reveal ══════════════ */
+    .tg4 {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--color-ink);
+      color: #fff;
+    }
+    .tg4[aria-expanded='true'] {
+      background: #fff;
+      color: var(--color-accent);
+    }
+    .m4:is([data-open], [data-closing]) .ph-head {
+      z-index: 40;
+    }
+    .m4 .ph-head {
+      transition:
+        background-color 260ms ease 380ms,
+        border-color 260ms ease 380ms,
+        color 300ms ease 200ms;
+    }
+    .m4[data-open] .ph-head {
+      border-color: transparent;
+      background: transparent;
+      color: #fff;
+      transition:
+        background-color 160ms ease 60ms,
+        border-color 160ms ease,
+        color 300ms ease 140ms;
+    }
+    .m4[data-open] .ph-mark__dot {
+      background: #fff;
+    }
+    .p4 {
+      inset: 0;
+      z-index: 35;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 100px 24px 26px;
+      overflow-y: auto;
+      scrollbar-width: none;
+      background: var(--color-accent);
+      color: #fff;
+      clip-path: circle(22px at var(--ox, 90%) var(--oy, 32px));
+      transition: clip-path 520ms var(--swift) 120ms;
+    }
+    .m4[data-open] .p4 {
+      clip-path: circle(150% at var(--ox, 90%) var(--oy, 32px));
+      transition: clip-path 820ms cubic-bezier(0.7, 0, 0.2, 1);
+    }
+    .p4-list li,
+    .p4-foot {
+      opacity: 0;
+      transform: translateY(24px);
+      transition:
+        opacity 180ms ease,
+        transform 220ms ease;
+    }
+    .m4[data-open] :is(.p4-list li, .p4-foot) {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 500ms ease calc(320ms + var(--i, 5) * 55ms),
+        transform 760ms var(--ios) calc(320ms + var(--i, 5) * 55ms);
+    }
+    .p4-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 64px;
+      font-size: 2.6rem;
+      text-decoration: none;
+    }
+    .p4-link .ico {
+      opacity: 0.6;
+    }
+    .p4-how {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      margin-top: 6px;
+      font-size: 15px;
+      font-weight: 500;
+      color: rgb(255 255 255 / 0.85);
+      text-decoration: none;
+    }
+    .p4-foot {
+      display: grid;
+      gap: 14px;
+      justify-items: start;
+    }
+    .p4-tt {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      height: 48px;
+      padding: 0 20px 0 16px;
+      border-radius: var(--radius-pill);
+      background: #fff;
+      color: var(--color-accent-ink);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .p4-biz {
+      font-size: 13px;
+      color: rgb(255 255 255 / 0.8);
+    }
+    .p4-biz a {
+      display: inline-block;
+      padding-block: 8px;
+      color: #fff;
+      text-underline-offset: 3px;
+    }
+
+    /* ══════════════ 5 · Menu + top pick ══════════════ */
+    .tg5 {
+      height: 44px;
+      padding: 0 16px 0 18px;
+      border-radius: var(--radius-pill);
+      background: var(--color-panel);
+    }
+    .tg5__chev {
+      transition: transform 520ms var(--ios);
+    }
+    .tg5[aria-expanded='true'] {
+      background: var(--color-ink);
+      color: var(--color-on-dark);
+    }
+    .tg5[aria-expanded='true'] .tg5__chev {
+      transform: rotate(180deg);
+    }
+    .m5[data-open] .ph-head {
+      border-bottom-color: var(--color-border);
+      background: #fff;
+    }
+    .p5 {
+      top: 64px;
+      left: 0;
+      right: 0;
+      padding: 10px 14px 14px;
+      border-radius: 0 0 28px 28px;
+      background: #fff;
+      box-shadow: 0 30px 50px -24px rgb(28 29 26 / 0.4);
+      clip-path: inset(0 -40px 100% -40px round 0 0 28px 28px);
+      transition: clip-path 380ms var(--ios);
+    }
+    .m5[data-open] .p5 {
+      clip-path: inset(0 -40px -80px -40px round 0 0 28px 28px);
+      transition: clip-path 640ms var(--ios);
+    }
+    .p5-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .p5-list li {
+      opacity: 0;
+      transform: translateX(-12px);
+      transition:
+        opacity 140ms ease,
+        transform 200ms ease;
+    }
+    .m5[data-open] .p5-list li {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 400ms ease calc(120ms + var(--i) * 45ms),
+        transform 640ms var(--ios) calc(120ms + var(--i) * 45ms);
+    }
+    .p5-list li + li {
+      border-top: 1px solid var(--color-border);
+    }
+    .p5-link {
+      display: flex;
+      align-items: center;
+      min-height: 50px;
+      font-size: 1.2rem;
+      text-decoration: none;
+    }
+    .p5-link--how {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--color-muted);
+      line-height: 1.25;
+    }
+    @media (hover: hover) {
+      .p5-link:hover {
+        color: var(--color-accent);
+      }
+    }
+    .p5-pick {
+      display: grid;
+      gap: 6px;
+      padding: 6px 6px 8px;
+      border-radius: 22px;
+      background: var(--color-panel);
+      opacity: 0;
+      transform: translateY(16px) scale(0.97);
+      transition:
+        opacity 160ms ease,
+        transform 220ms ease;
+    }
+    .m5[data-open] .p5-pick,
+    .m5[data-open] .p5-follow {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 460ms ease 220ms,
+        transform 720ms var(--ios) 220ms;
+    }
+    .p5-pick__img {
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #fff;
+    }
+    .p5-pick__img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .p5-pick__eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 4px 4px 0;
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-accent-ink);
+    }
+    .p5-pick__eyebrow i {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+    }
+    .p5-pick__name {
+      display: -webkit-box;
+      margin: 0 4px;
+      overflow: hidden;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.3;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .p5-pick__price {
+      display: grid;
+      margin: 0 4px 2px;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .p5-pick__price span {
+      color: var(--color-muted);
+      font-size: 10.5px;
+      font-weight: 500;
+    }
+    .p5-pick__cta {
+      display: grid;
+      place-items: center;
+      height: 44px;
+      border-radius: var(--radius-pill);
+      background: var(--color-ink);
+      color: var(--color-on-dark);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .p5-follow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 48px;
+      margin-top: 12px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-pill);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      text-decoration: none;
+      opacity: 0;
+      transform: translateY(10px);
+      transition:
+        opacity 140ms ease,
+        transform 200ms ease;
+    }
+
+    /* ══════════════ 6 · Morphing pill ══════════════ */
+    .m6 .ph-head {
+      z-index: auto;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background: #fff;
+    }
+    .m6 .tg6 {
+      z-index: 40;
+    }
+    .m6[data-open] .tg6:hover {
+      background: var(--color-ink);
+    }
+    .p6 {
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      z-index: 35;
+      padding: 64px 20px 18px;
+      border-radius: 28px;
+      background: var(--color-ink);
+      color: #fff;
+      box-shadow: 0 30px 60px -24px rgb(0 0 0 / 0.5);
+      clip-path: inset(var(--t, 0) var(--r, 0) var(--b, 0) var(--l, 0) round 22px);
+      transition: clip-path 460ms var(--ios) 80ms;
+    }
+    .m6[data-open] .p6 {
+      clip-path: inset(0 0 0 0 round 28px);
+      transition: clip-path 680ms var(--ios);
+    }
+    .p6-mark > span {
+      display: inline-flex;
+      align-items: baseline;
+    }
+    .p6-mark {
+      position: absolute;
+      top: 0;
+      left: 8px;
+      display: flex;
+      align-items: center;
+      height: 54px;
+      font-size: 1.95rem;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .p6-mark,
+    .p6-list li,
+    .p6-foot {
+      opacity: 0;
+      transform: translateY(10px);
+      transition:
+        opacity 140ms ease,
+        transform 200ms ease;
+    }
+    .m6[data-open] :is(.p6-mark, .p6-list li, .p6-foot) {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 380ms ease calc(160ms + var(--i, 0) * 45ms),
+        transform 620ms var(--ios) calc(160ms + var(--i, 0) * 45ms);
+    }
+    .p6-list li + li {
+      border-top: 1px solid rgb(255 255 255 / 0.14);
+    }
+    .p6-link,
+    .p6-how {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 58px;
+      text-decoration: none;
+    }
+    .p6-link {
+      font-size: 1.85rem;
+    }
+    .p6-link .ico,
+    .p6-how .ico {
+      color: rgb(255 255 255 / 0.5);
+    }
+    .p6-how {
+      min-height: 52px;
+      font-size: 15px;
+      font-weight: 500;
+      color: rgb(255 255 255 / 0.75);
+    }
+    .p6-foot {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .p6-tt {
+      display: inline-flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 48px;
+      border-radius: var(--radius-pill);
+      background: #fff;
+      color: var(--color-ink);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .p6-contact {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .p6-contact a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 44px;
+      border: 1px solid rgb(255 255 255 / 0.22);
+      border-radius: var(--radius-pill);
+      font-size: 12.5px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background-color var(--dur) var(--ease-out);
+    }
+    .p6-contact a:hover {
+      background: rgb(255 255 255 / 0.1);
+    }
+
+    /* ══════════════ 7 · Shop by category ══════════════ */
+    .tg7 {
+      height: 44px;
+      padding: 0 18px 0 14px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-pill);
+      background: #fff;
+      gap: 8px;
+    }
+    .tg7__icons {
+      display: grid;
+      width: 17px;
+      height: 17px;
+    }
+    .tg7__icons > .ico {
+      grid-area: 1 / 1;
+      transition:
+        transform 520ms var(--ios),
+        opacity 260ms ease;
+    }
+    .tg7__x {
+      opacity: 0;
+      transform: rotate(-90deg) scale(0.5);
+    }
+    .tg7[aria-expanded='true'] {
+      border-color: var(--color-ink);
+    }
+    .tg7[aria-expanded='true'] .tg7__search {
+      opacity: 0;
+      transform: rotate(90deg) scale(0.5);
+    }
+    .tg7[aria-expanded='true'] .tg7__x {
+      opacity: 1;
+      transform: none;
+    }
+    .m7[data-open] .ph-head {
+      border-bottom-color: var(--color-border);
+      background: #fff;
+    }
+    .p7 {
+      top: 64px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 14px 14px 22px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      background: #fff;
+      opacity: 0;
+      transition: opacity 260ms ease 60ms;
+    }
+    .m7[data-open] .p7 {
+      opacity: 1;
+      transition: opacity 280ms ease;
+    }
+    .p7-search,
+    .p7-label,
+    .p7-cats li,
+    .p7-list li,
+    .p7-tt {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+      transition:
+        opacity 140ms ease,
+        transform 200ms ease;
+    }
+    .m7[data-open] :is(.p7-search, .p7-label, .p7-cats li, .p7-list li, .p7-tt) {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 380ms ease calc(60ms + var(--i) * 32ms),
+        transform 620ms var(--ios) calc(60ms + var(--i) * 32ms);
+    }
+    .p7-search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 50px;
+      padding: 0 18px;
+      border-radius: var(--radius-pill);
+      background: var(--color-panel);
+      color: var(--color-muted);
+    }
+    .p7-search:focus-within {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
+    .p7-search input {
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      border: 0;
+      background: none;
+      color: var(--color-ink);
+      font-size: 16px;
+      outline: none;
+    }
+    .p7-search input::placeholder {
+      color: var(--color-muted);
+    }
+    .p7-label {
+      margin: 20px 4px 10px;
+      color: var(--color-muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .p7-cats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .p7-cat {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      padding: 0 14px 0 16px;
+      border-radius: 18px;
+      background: var(--color-panel);
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition:
+        background-color var(--dur) var(--ease-out),
+        color var(--dur) var(--ease-out);
+    }
+    .p7-cat__n {
+      display: grid;
+      place-items: center;
+      min-width: 26px;
+      height: 26px;
+      padding: 0 7px;
+      border-radius: var(--radius-pill);
+      background: #fff;
+      color: var(--color-muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    @media (hover: hover) {
+      .p7-cat:hover {
+        background: var(--color-accent-tint);
+        color: var(--color-accent-ink);
+      }
+    }
+    .p7-list li + li {
+      border-top: 1px solid var(--color-border);
+    }
+    .p7-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 50px;
+      margin: 0 4px;
+      font-size: 1.2rem;
+      text-decoration: none;
+    }
+    .p7-link > span:first-child:not(.display) {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--color-muted);
+    }
+    .p7-link .ico {
+      color: var(--color-muted);
+    }
+    .p7-tt {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      height: 50px;
+      margin-top: 14px;
+      border-radius: var(--radius-pill);
+      background: var(--color-ink);
+      color: var(--color-on-dark);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    /* ══════════════ 8 · Drawer, 3D tilt ══════════════ */
+    .tg8 {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--color-panel);
+    }
+    .lines--8 {
+      width: 18px;
+      height: 12px;
+    }
+    .lines--8 i:nth-child(2) {
+      top: 5.25px;
+      left: 6px;
+    }
+    .lines--8 i:last-child {
+      top: 9.5px;
+    }
+    @media (hover: hover) {
+      .tg8:hover .lines--8 i:nth-child(2) {
+        left: 0;
+      }
+    }
+    .m8 .ph-screen {
+      background: #1d1e1b;
+    }
+    .m8 .ph-world {
+      transform-origin: 50% 50%;
+      transition:
+        transform 460ms var(--ios),
+        border-radius 460ms var(--ios),
+        opacity 460ms var(--ios);
+    }
+    .m8:is([data-open], [data-closing]) .ph-world {
+      overflow: hidden;
+    }
+    .m8[data-open] .ph-world {
+      border-radius: 34px;
+      opacity: 0.72;
+      transform: translateX(-18%) scale(0.86) rotateY(14deg);
+      transition:
+        transform 720ms var(--ios),
+        border-radius 720ms var(--ios),
+        opacity 720ms var(--ios);
+    }
+    .m8 .ph-scrim {
+      z-index: 45;
+      background: rgb(28 29 26 / 0.12);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    .p8 {
+      top: 8px;
+      right: 8px;
+      bottom: 8px;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      width: min(80%, 300px);
+      padding: 10px 12px 14px;
+      overflow-y: auto;
+      scrollbar-width: none;
+      border-radius: 34px;
+      background: #fff;
+      box-shadow: -20px 0 50px -20px rgb(0 0 0 / 0.5);
+      transform: translateX(calc(100% + 24px));
+      transition: transform 440ms var(--ios);
+    }
+    .m8[data-open] .p8 {
+      transform: none;
+      transition: transform 680ms var(--ios);
+    }
+    @media (max-width: 599px) {
+      .p8 {
+        border-radius: 22px;
+      }
+    }
+    .p8-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0 8px 8px;
+    }
+    .p8-mark {
+      font-size: 1.9rem;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .p8-x {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--color-panel);
+    }
+    .p8-list {
+      display: grid;
+      gap: 6px;
+    }
+    .p8-list li,
+    .p8-foot {
+      opacity: 0;
+      transform: translateX(48px) rotate(3deg);
+      transform-origin: 100% 50%;
+      transition:
+        opacity 160ms ease,
+        transform 240ms ease;
+    }
+    .m8[data-open] :is(.p8-list li, .p8-foot) {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 420ms ease calc(160ms + var(--i) * 50ms),
+        transform 760ms var(--ios) calc(160ms + var(--i) * 50ms);
+    }
+    .p8-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      column-gap: 10px;
+      min-height: 64px;
+      padding: 10px 14px 10px 16px;
+      border-radius: 20px;
+      background: var(--color-panel);
+      text-decoration: none;
+      transition: background-color var(--dur) var(--ease-out);
+    }
+    @media (hover: hover) {
+      .p8-card:hover {
+        background: var(--color-panel-strong);
+      }
+    }
+    .p8-card__t {
+      font-size: 1.15rem;
+      line-height: 1.05;
+    }
+    .p8-card__h {
+      grid-row: 2;
+      color: var(--color-muted);
+      font-size: 12px;
+    }
+    .p8-card__go {
+      grid-row: 1 / 3;
+      grid-column: 2;
+      color: var(--color-muted);
+    }
+    .p8-foot {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: auto;
+      padding-top: 14px;
+    }
+    .p8-tt {
+      grid-column: 1 / -1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      height: 46px;
+      border-radius: var(--radius-pill);
+      background: var(--color-ink);
+      color: var(--color-on-dark);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .p8-c {
+      display: grid;
+      place-items: center;
+      height: 44px;
+      border-radius: var(--radius-pill);
+      background: var(--color-panel);
+      transition: background-color var(--dur) var(--ease-out);
+    }
+    .p8-c:hover {
+      background: var(--color-panel-strong);
+    }
+
+    /* ══════════════ 9 · The dot ══════════════ */
+    .m9-brand {
+      display: flex;
+      align-items: center;
+    }
+    .tg9 {
+      width: 44px;
+      height: 44px;
+      margin-left: -15px;
+    }
+    .tg9:active {
+      transform: none;
+    }
+    .tg9__dot,
+    .tg9__ring {
+      position: absolute;
+      top: 23px;
+      left: 11px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-accent);
+    }
+    .tg9__dot {
+      display: grid;
+      place-items: center;
+      transition:
+        transform 520ms cubic-bezier(0.34, 1.45, 0.64, 1),
+        background-color 300ms ease;
+    }
+    .tg9__ring {
+      opacity: 0;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .tg9[aria-expanded='false'] .tg9__ring {
+        animation: m9-ping 2.6s var(--ease-out) 1s 3;
+      }
+    }
+    @keyframes m9-ping {
+      0% {
+        opacity: 0.5;
+        transform: scale(1);
+      }
+      70%,
+      100% {
+        opacity: 0;
+        transform: scale(3.4);
+      }
+    }
+    @media (hover: hover) {
+      .tg9:hover .tg9__dot {
+        transform: scale(1.5);
+      }
+    }
+    .tg9__x {
+      position: relative;
+      width: 3px;
+      height: 3px;
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
+    .tg9__x i {
+      position: absolute;
+      top: 1px;
+      left: -0.5px;
+      width: 4px;
+      height: 0.55px;
+      border-radius: 1px;
+      background: #fff;
+      transform: rotate(45deg);
+    }
+    .tg9__x i + i {
+      transform: rotate(-45deg);
+    }
+    .tg9[aria-expanded='true'] .tg9__dot {
+      transform: translate(16px, -5px) scale(3.25);
+    }
+    .tg9[aria-expanded='true'] .tg9__x {
+      opacity: 1;
+      transition: opacity 260ms ease 160ms;
+    }
+    .m9 .ph-scrim {
+      background: rgb(28 29 26 / 0.16);
+    }
+    .p9 {
+      top: 60px;
+      left: 12px;
+      z-index: 50;
+      width: min(256px, calc(100% - 24px));
+      padding: 6px;
+      border-radius: 26px;
+      background: rgb(255 255 255 / 0.96);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      backdrop-filter: blur(20px) saturate(1.5);
+      box-shadow:
+        0 0 0 1px rgb(41 43 39 / 0.06),
+        0 24px 50px -16px rgb(28 29 26 / 0.4);
+      transform-origin: var(--ox, 30px) var(--oy, -30px);
+      opacity: 0;
+      transform: scale(0.06);
+      transition:
+        transform 300ms var(--ios),
+        opacity 180ms ease 100ms;
+    }
+    .m9[data-open] .p9 {
+      opacity: 1;
+      transform: none;
+      transition:
+        transform 600ms cubic-bezier(0.34, 1.32, 0.64, 1),
+        opacity 160ms ease;
+    }
+    .p9-list li,
+    .p9-tt,
+    .p9-contact {
+      opacity: 0;
+      transition: opacity 120ms ease;
+    }
+    .m9[data-open] :is(.p9-list li, .p9-tt, .p9-contact) {
+      opacity: 1;
+      transition: opacity 360ms ease calc(140ms + var(--i) * 35ms);
+    }
+    .p9-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 46px;
+      padding: 0 14px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background-color var(--dur-fast) ease;
+    }
+    .p9-row:hover,
+    .p9-row:focus-visible {
+      background: var(--color-panel);
+    }
+    .p9-row .ico {
+      color: var(--color-muted);
+    }
+    .p9-tt {
+      margin-top: 4px;
+      border-top: 1px solid var(--color-border);
+      border-radius: 0 0 20px 20px;
+      padding-top: 2px;
+      font-size: 14px;
+    }
+    .p9-tt .ico {
+      color: var(--color-accent);
+    }
+    @media (hover: hover) {
+      .p9-row.p9-tt:hover .ico {
+        transform: none;
+      }
+    }
+    .p9-contact {
+      display: flex;
+      gap: 6px;
+      padding: 6px 4px 2px;
+    }
+    .p9-contact a {
+      display: grid;
+      flex: 1;
+      place-items: center;
+      height: 44px;
+      border-radius: 16px;
+      background: var(--color-panel);
+      transition: background-color var(--dur) var(--ease-out);
+    }
+    .p9-contact a:hover {
+      background: var(--color-panel-strong);
+    }
+
+    /* ══════════════ 10 · Serif ticker ══════════════ */
+    .tg10 {
+      height: 44px;
+      padding: 0 12px;
+      font-size: 1.6rem;
+      font-weight: 400;
+    }
+    .roll--serif {
+      height: 1.2em;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+    }
+    .roll--serif > span {
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: flex-end;
+    }
+    .m10:is([data-open], [data-closing]) .ph-head {
+      z-index: 40;
+    }
+    .m10[data-open] .ph-head {
+      border-color: transparent;
+      background: transparent;
+    }
+    .p10 {
+      inset: 0;
+      z-index: 35;
+      display: flex;
+      flex-direction: column;
+      padding: 84px 22px 0;
+      overflow: hidden;
+      background: #fff;
+      opacity: 0;
+      transition: opacity 320ms ease 160ms;
+    }
+    .m10[data-open] .p10 {
+      opacity: 1;
+      transition: opacity 360ms ease;
+    }
+    .p10-list li {
+      border-bottom: 1px solid var(--color-border);
+      opacity: 0;
+      transform: translateX(36px);
+      transition:
+        opacity 160ms ease,
+        transform 240ms ease;
+    }
+    .p10-foot {
+      opacity: 0;
+      transition: opacity 160ms ease;
+    }
+    .m10[data-open] .p10-list li,
+    .m10[data-open] .p10-foot {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 520ms ease calc(120ms + var(--i) * 60ms),
+        transform 900ms var(--ios) calc(120ms + var(--i) * 60ms);
+    }
+    .p10-link {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      min-height: 64px;
+      padding-top: 12px;
+      text-decoration: none;
+    }
+    .p10-n {
+      flex: none;
+      width: 18px;
+      color: var(--color-muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      transition: color var(--dur) var(--ease-out);
+    }
+    .p10-t {
+      font-size: 2.3rem;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      transition: transform 520ms var(--ios);
+    }
+    @media (hover: hover) {
+      .p10-link:hover .p10-t {
+        transform: translateX(8px);
+      }
+      .p10-link:hover .p10-n {
+        color: var(--color-accent);
+      }
+    }
+    .p10-foot {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px 16px;
+      padding-top: 14px;
+    }
+    .p10-tt {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-underline-offset: 4px;
+    }
+    .p10-biz {
+      color: var(--color-muted);
+      font-size: 13px;
+    }
+    .p10-biz a {
+      display: inline-block;
+      padding-block: 12px;
+      color: var(--color-ink);
+      text-underline-offset: 3px;
+    }
+    .p10-marquee {
+      display: flex;
+      align-items: center;
+      height: 96px;
+      margin: auto -22px 0;
+      overflow: hidden;
+      background: var(--color-accent);
+      color: #fff;
+      transform: translateY(100%);
+      transition: transform 360ms var(--ios-in);
+    }
+    .m10[data-open] .p10-marquee {
+      transform: none;
+      transition: transform 900ms var(--ios) 300ms;
+    }
+    .p10-track {
+      display: flex;
+      flex: none;
+      animation: m10-marquee 22s linear infinite;
+      animation-play-state: paused;
+    }
+    .m10[data-open] .p10-track {
+      animation-play-state: running;
+    }
+    .p10-group {
+      display: flex;
+      flex: none;
+    }
+    .p10-bea {
+      display: inline-flex;
+      align-items: baseline;
+      padding: 0 0.32em;
+      font-size: 4.25rem;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .p10-bea i {
+      background: var(--color-accent-tint);
+    }
+    @keyframes m10-marquee {
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    /* ── Reduced motion: every menu still works, without movement ───────── */
+    @media (prefers-reduced-motion: reduce) {
+      .phone *,
+      .phone *::before,
+      .phone *::after {
+        transition-duration: 1ms !important;
+        transition-delay: 0ms !important;
+        animation: none !important;
+      }
+    }
+  </style>
+
+  <script>
+    const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    type Ctl = { isOpen: () => boolean; close: (focus?: boolean) => void };
+    const ctls: Ctl[] = [];
+
+    document.querySelectorAll<HTMLElement>('[data-phone]').forEach((phone) => {
+      const screen = phone.querySelector<HTMLElement>('[data-screen]')!;
+      const toggle = phone.querySelector<HTMLButtonElement>('[data-toggle]')!;
+      const panel = phone.querySelector<HTMLElement>('[data-panel]')!;
+      const page = phone.querySelector<HTMLElement>('[data-page]')!;
+      const keepToggle = phone.hasAttribute('data-keep-toggle');
+      const baseLabel = toggle.getAttribute('aria-label') || 'Menu';
+      let open = false;
+      let token = 0;
+      let timer = 0;
+
+      /** Where the toggle sits relative to the panel: used by morph / circle / bubble origins. */
+      const measure = () => {
+        const s = screen.getBoundingClientRect();
+        const t = toggle.getBoundingClientRect();
+        const px = panel.offsetLeft;
+        const py = panel.offsetTop;
+        const tl = t.left - s.left;
+        const tt = t.top - s.top;
+        const set = (k: string, v: number) => panel.style.setProperty(k, `${Math.round(v * 10) / 10}px`);
+        set('--ox', tl + t.width / 2 - px);
+        set('--oy', tt + t.height / 2 - py);
+        set('--t', tt - py);
+        set('--l', tl - px);
+        set('--r', px + panel.offsetWidth - (tl + t.width));
+        set('--b', py + panel.offsetHeight - (tt + t.height));
+      };
+
+      const focusables = () =>
+        [...(keepToggle ? [toggle] : []), ...panel.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+          (el) => el.getClientRects().length > 0,
+        );
+
+      const doOpen = () => {
+        if (open) return;
+        ctls.forEach((c) => c !== ctl && c.isOpen() && c.close(false));
+        open = true;
+        token++;
+        clearTimeout(timer);
+        panel.hidden = false;
+        measure();
+        void panel.offsetWidth; // commit the closed state so the open transition runs
+        phone.removeAttribute('data-closing');
+        phone.setAttribute('data-open', '');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'Close menu');
+        requestAnimationFrame(() => {
+          const first =
+            panel.querySelector<HTMLElement>('[data-autofocus]') ?? panel.querySelector<HTMLElement>(FOCUSABLE);
+          first?.focus({ preventScroll: true });
+        });
+      };
+
+      const close = (returnFocus = true) => {
+        if (!open) return;
+        open = false;
+        const my = ++token;
+        phone.removeAttribute('data-open');
+        phone.setAttribute('data-closing', '');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', baseLabel);
+        if (returnFocus) toggle.focus({ preventScroll: true });
+        const done = () => {
+          if (my !== token) return;
+          clearTimeout(timer);
+          panel.hidden = true;
+          phone.removeAttribute('data-closing');
+        };
+        const running = phone.getAnimations({ subtree: true }).filter((a) => a instanceof CSSTransition);
+        Promise.all(running.map((a) => a.finished.catch(() => {}))).then(done);
+        timer = window.setTimeout(done, 1500);
+      };
+
+      const ctl: Ctl = { isOpen: () => open, close };
+      ctls.push(ctl);
+
+      toggle.addEventListener('click', () => (open ? close() : doOpen()));
+      phone.querySelector('[data-scrim]')?.addEventListener('click', () => close());
+      phone.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => close()));
+      panel.addEventListener('click', (e) => {
+        const a = (e.target as Element).closest('a');
+        if (a?.hasAttribute('data-demo')) {
+          e.preventDefault();
+          close();
+        }
+      });
+      panel.querySelector('[data-search]')?.addEventListener('submit', (e) => e.preventDefault());
+      page.addEventListener('scroll', () => phone.toggleAttribute('data-scrolled', page.scrollTop > 8), {
+        passive: true,
+      });
+
+      // Keep Tab inside the open menu.
+      phone.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab' || !open) return;
+        const items = focusables();
+        if (!items.length) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        const active = document.activeElement as HTMLElement;
+        if (!items.includes(active)) {
+          e.preventDefault();
+          first.focus();
+        } else if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+
+      // 3 · Thumb sheet: drag the handle down to dismiss.
+      const drag = phone.querySelector<HTMLElement>('[data-drag]');
+      if (drag) {
+        let startY = 0;
+        let dy = 0;
+        let t0 = 0;
+        let dragging = false;
+        drag.addEventListener('pointerdown', (e) => {
+          if (!open || (e.target as Element).closest('button')) return;
+          dragging = true;
+          startY = e.clientY;
+          dy = 0;
+          t0 = performance.now();
+          drag.setPointerCapture(e.pointerId);
+          panel.style.transition = 'none';
+        });
+        drag.addEventListener('pointermove', (e) => {
+          if (!dragging) return;
+          const raw = e.clientY - startY;
+          dy = raw > 0 ? raw : raw / 6;
+          panel.style.transform = `translateY(${dy}px)`;
+        });
+        const end = () => {
+          if (!dragging) return;
+          dragging = false;
+          const v = dy / Math.max(1, performance.now() - t0);
+          panel.style.removeProperty('transition');
+          panel.style.removeProperty('transform');
+          if (dy > 110 || (v > 0.5 && dy > 30)) close();
+        };
+        drag.addEventListener('pointerup', end);
+        drag.addEventListener('pointercancel', end);
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') ctls.filter((c) => c.isOpen()).forEach((c) => c.close(true));
+    });
+    // Demo links in the frame headers shouldn't jump the page.
+    document
+      .querySelectorAll<HTMLAnchorElement>('.ph-head a[data-demo]')
+      .forEach((a) => a.addEventListener('click', (e) => e.preventDefault()));
+  </script>
+</Base>

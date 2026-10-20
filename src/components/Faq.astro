@@ -1,0 +1,156 @@
+---
+/**
+ * "How buying works" — native <details> accordion, so it works without JS,
+ * with keyboards and screen readers. Edit the questions in src/config/site.ts.
+ */
+import { site } from '../config/site';
+import SectionHead from './SectionHead.astro';
+
+const { faq } = site;
+---
+
+{
+  faq.items.length > 0 && (
+    <section id="faq" class="section" aria-labelledby="faq-title">
+      <div class="container faq">
+        <SectionHead id="faq-title" heading={faq.heading} text={faq.text} />
+        <div class="faq__list" data-reveal-stagger>
+          {faq.items.map((item, i) => (
+            <details class="faq__item" name="faq" open={i === 0}>
+              <summary>
+                <span>{item.q}</span>
+                <span class="faq__icon" aria-hidden="true" />
+              </summary>
+              <div class="faq__answer">
+                <p>{item.a}</p>
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .faq__list {
+    display: grid;
+    gap: 8px;
+  }
+  .faq__item {
+    border-radius: 20px;
+    background: var(--color-panel);
+    transition: background-color var(--dur) var(--ease-out);
+  }
+  .faq__item[open] {
+    background: var(--color-panel-strong);
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 64px;
+    padding: 14px 20px 14px 22px;
+    font-size: var(--text-base);
+    font-weight: 500;
+    line-height: 1.35;
+    list-style: none;
+    cursor: pointer;
+    border-radius: 20px;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* Plus that turns into a minus */
+  .faq__icon {
+    position: relative;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-bg);
+    transition: background-color var(--dur) var(--ease-out);
+  }
+  .faq__icon::before,
+  .faq__icon::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 1.5px;
+    margin: -0.75px 0 0 -6px;
+    border-radius: 2px;
+    background: var(--color-ink);
+    transition: transform 420ms var(--ease-out);
+  }
+  .faq__icon::after {
+    transform: rotate(90deg);
+  }
+  .faq__item[open] .faq__icon::after {
+    transform: rotate(0deg);
+  }
+  summary:hover .faq__icon {
+    background: var(--color-ink);
+  }
+  summary:hover .faq__icon::before,
+  summary:hover .faq__icon::after {
+    background: var(--color-on-dark);
+  }
+
+  .faq__answer {
+    padding: 0 22px 22px;
+  }
+  .faq__answer p {
+    max-width: 62ch;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+
+  /* Smooth open/close where supported (Chrome 131+, Safari 18.4+) */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (interpolate-size: allow-keywords) {
+      .faq__item {
+        interpolate-size: allow-keywords;
+      }
+      .faq__item::details-content {
+        height: 0;
+        overflow: clip;
+        transition:
+          height 420ms var(--ease-out),
+          content-visibility 420ms allow-discrete;
+      }
+      .faq__item[open]::details-content {
+        height: auto;
+      }
+    }
+  }
+
+  @media (min-width: 900px) {
+    .faq {
+      display: grid;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 64px;
+      align-items: start;
+    }
+    .faq :global(.section-head) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      position: sticky;
+      top: calc(var(--header-h) + 24px);
+    }
+    summary {
+      min-height: 72px;
+      padding: 16px 22px 16px 28px;
+      font-size: var(--text-md);
+    }
+    .faq__answer {
+      padding: 0 28px 26px;
+    }
+  }
+</style>

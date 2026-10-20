@@ -1,0 +1,51 @@
+---
+/** USD / PHP toggle. Every switch on the page stays in sync (see Base.astro). */
+import { site } from '../config/site';
+
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+const initial = site.currency.default;
+---
+
+<div class:list={['currency', className]} role="group" aria-label="Show prices in">
+  {
+    (['USD', 'PHP'] as const).map((c) => (
+      <button type="button" data-currency-set={c} aria-pressed={String(c === initial)}>
+        {c === 'USD' ? '$ USD' : '₱ PHP'}
+      </button>
+    ))
+  }
+</div>
+
+<style is:global>
+  .currency {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: var(--radius-pill);
+    background: var(--color-panel);
+    border: 1px solid var(--color-border);
+  }
+  .currency button {
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: var(--radius-pill);
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition:
+      background-color var(--dur) var(--ease-out),
+      color var(--dur) var(--ease-out),
+      box-shadow var(--dur) var(--ease-out);
+  }
+  .currency button:hover {
+    color: var(--color-ink);
+  }
+  .currency button[aria-pressed='true'] {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    box-shadow: 0 1px 2px rgb(41 43 39 / 0.08), 0 0 0 1px rgb(41 43 39 / 0.06);
+  }
+</style>

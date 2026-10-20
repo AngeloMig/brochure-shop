@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output & caches
+dist/
+.astro/
+.cache/
+coverage/
+
+# Generated image sizes (rebuilt by `npm run images` before dev/build)
+public/images/sized/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Hosting / deploy tooling
+.vercel/
+.netlify/
+
+# Editors & OS files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Claude Code: keep shared launch config, ignore personal settings
+.claude/settings.local.json

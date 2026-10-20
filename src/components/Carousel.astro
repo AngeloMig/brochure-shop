@@ -1,0 +1,458 @@
+---
+/**
+ * Native scroll-snap carousel: swipe on touch, arrow buttons + keyboard on desktop,
+ * and the reference's thin progress line. Works without JS (it just scrolls).
+ */
+interface Props {
+  label: string;
+  /** Visible slides per breakpoint: [mobile, tablet, desktop]. Fractions create a peek. */
+  perView?: [number, number, number];
+  class?: string;
+}
+const { label, perView = [1.25, 2.2, 3], class: className } = Astro.props;
+---
+
+<div
+  class:list={['carousel', className]}
+  data-carousel
+  style={`--pv-m:${perView[0]};--pv-t:${perView[1]};--pv-d:${perView[2]}`}
+>
+  <div
+    class="carousel__track"
+    role="region"
+    aria-roledescription="carousel"
+    aria-label={label}
+    tabindex="0"
+    data-track
+    data-reveal-stagger
+  >
+    <slot />
+  </div>
+  <span class="carousel__cursor" aria-hidden="true" data-cursor>
+    <svg viewBox="0 0 8 10" width="6" height="8"><path d="M8 0v10L0 5z" fill="currentColor"></path></svg>
+    Drag
+    <svg viewBox="0 0 8 10" width="6" height="8"><path d="M0 0v10l8-5z" fill="currentColor"></path></svg>
+  </span>
+  <div class="carousel__footer">
+    <div class="carousel__progress" aria-hidden="true"><span data-progress></span></div>
+    <div class="carousel__controls">
+      <button class="carousel__btn carousel__btn--prev" type="button" data-prev aria-label={`Previous — ${label}`}>
+        <span class="carousel__arrows" aria-hidden="true">
+          <svg class="carousel__arrow carousel__arrow--trail" viewBox="0 0 8 10" width="8" height="10"><path d="M8 0v10L0 5z" fill="currentColor"></path></svg>
+          <svg class="carousel__arrow carousel__arrow--lead" viewBox="0 0 8 10" width="8" height="10"><path d="M8 0v10L0 5z" fill="currentColor"></path></svg>
+        </span>
+      </button>
+      <button class="carousel__btn carousel__btn--next" type="button" data-next aria-label={`Next — ${label}`}>
+        <span class="carousel__arrows" aria-hidden="true">
+          <svg class="carousel__arrow carousel__arrow--trail" viewBox="0 0 8 10" width="8" height="10"><path d="M0 0v10l8-5z" fill="currentColor"></path></svg>
+          <svg class="carousel__arrow carousel__arrow--lead" viewBox="0 0 8 10" width="8" height="10"><path d="M0 0v10l8-5z" fill="currentColor"></path></svg>
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .carousel {
+    --pv: var(--pv-m);
+  }
+  @media (min-width: 768px) {
+    .carousel {
+      --pv: var(--pv-t);
+    }
+  }
+  @media (min-width: 1200px) {
+    .carousel {
+      --pv: var(--pv-d);
+    }
+  }
+  .carousel__track {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - (var(--pv) - 1) * var(--gap-cards)) / var(--pv));
+    gap: var(--gap-cards);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    padding-inline: var(--gutter);
+    margin-inline: calc(-1 * var(--gutter));
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .carousel__track::-webkit-scrollbar {
+    display: none;
+  }
+  .carousel__track:focus-visible {
+    outline-offset: -2px;
+    border-radius: 0;
+  }
+  .carousel__track > :global(*) {
+    scroll-snap-align: start;
+    min-width: 0;
+  }
+  /* "Drag" cursor — desktop mouse only; phones swipe natively */
+  .carousel {
+    position: relative;
+  }
+  .carousel__cursor {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 30;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 84px;
+    height: 84px;
+    margin: -42px 0 0 -42px;
+    border-radius: 50%;
+    background: var(--color-ink);
+    color: var(--color-on-dark);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    pointer-events: none;
+    will-change: transform;
+    opacity: 0;
+    scale: 0.4;
+    transition:
+      opacity 220ms ease-out,
+      scale 320ms var(--ease-spring);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .carousel__cursor {
+      display: flex;
+    }
+    .carousel[data-cursor-on] .carousel__cursor {
+      opacity: 1;
+      scale: 1;
+    }
+    .carousel[data-cursor-on][data-dragging] .carousel__cursor {
+      scale: 0.82;
+    }
+    .carousel__track {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .carousel__track :global(img) {
+      -webkit-user-drag: none;
+    }
+    .carousel[data-cursor-on] .carousel__track {
+      cursor: none;
+    }
+    .carousel[data-dragging] .carousel__track {
+      scroll-snap-type: none;
+    }
+    /* While dragging, cards ignore hover so nothing flickers under the cursor */
+    .carousel[data-dragging] .carousel__track > :global(*) {
+      pointer-events: none;
+    }
+  }
+  .carousel__footer {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 32px;
+  }
+  .carousel__progress {
+    position: relative;
+    flex: 1;
+    height: 2px;
+    background: color-mix(in srgb, var(--color-ink) 16%, transparent);
+    overflow: hidden;
+  }
+  .carousel__progress span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--thumb, 40%);
+    background: var(--color-ink);
+    transform: translateX(var(--offset, 0%));
+    transition: transform 120ms linear;
+  }
+  .carousel__controls {
+    display: flex;
+    gap: 8px;
+  }
+  /* Reference hover: circular fill from the centre; on click the arrow exits and a twin slides in */
+  .carousel__btn {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 44px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-bg);
+    color: var(--color-ink);
+    transition:
+      border-color 300ms ease-in-out,
+      color 300ms ease-in-out,
+      opacity var(--dur) var(--ease-out);
+  }
+  .carousel__btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: -1;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-ink);
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(0);
+    transition:
+      transform 400ms ease-in-out,
+      opacity 400ms ease-in-out;
+  }
+  .carousel__btn:hover:not(:disabled) {
+    border-color: var(--color-ink);
+    color: var(--color-on-dark);
+  }
+  .carousel__btn:hover:not(:disabled)::before {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+  .carousel__arrows {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    overflow: hidden;
+  }
+  .carousel__arrow {
+    grid-area: 1 / 1;
+    transition: transform 560ms cubic-bezier(0.625, 0.05, 0, 1);
+  }
+  .carousel__btn--next .carousel__arrow--lead {
+    transform: translateX(-200%);
+  }
+  .carousel__btn--prev .carousel__arrow--lead {
+    transform: translateX(200%);
+  }
+  .carousel__btn--next.is-clicked .carousel__arrow--trail {
+    transform: translateX(200%);
+  }
+  .carousel__btn--prev.is-clicked .carousel__arrow--trail {
+    transform: translateX(-200%);
+  }
+  .carousel__btn.is-clicked .carousel__arrow--lead {
+    transform: none;
+  }
+  .carousel__btn.no-anim .carousel__arrow {
+    transition: none;
+  }
+  .carousel__btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .carousel[data-static] .carousel__footer {
+    display: none;
+  }
+</style>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
+    const track = root.querySelector<HTMLElement>('[data-track]')!;
+    const prev = root.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+    const bar = root.querySelector<HTMLElement>('[data-progress]')!;
+
+    const step = () => {
+      const slide = track.firstElementChild as HTMLElement | null;
+      const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+      const perPage = Math.max(1, Math.floor((track.clientWidth + gap) / ((slide?.offsetWidth ?? 1) + gap)));
+      return perPage * ((slide?.offsetWidth ?? track.clientWidth) + gap);
+    };
+
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      const ratio = track.clientWidth / track.scrollWidth;
+      root.toggleAttribute('data-static', max <= 2);
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft >= max - 2;
+      const thumb = Math.max(ratio * 100, 8);
+      const progress = max > 0 ? track.scrollLeft / max : 0;
+      bar.style.setProperty('--thumb', `${thumb}%`);
+      bar.style.setProperty('--offset', `${(progress * (100 - thumb) * 100) / thumb}%`);
+    };
+
+    const go = (dir: 1 | -1) =>
+      track.scrollBy({ left: dir * step(), behavior: reduce.matches ? 'auto' : 'smooth' });
+
+    // Arrow swap on click, then reset silently so it can play again.
+    const nudge = (btn: HTMLButtonElement) => {
+      if (reduce.matches) return;
+      btn.classList.add('is-clicked');
+      window.setTimeout(() => {
+        btn.classList.add('no-anim');
+        btn.classList.remove('is-clicked');
+        void btn.offsetWidth;
+        btn.classList.remove('no-anim');
+      }, 580);
+    };
+
+    prev.addEventListener('click', () => (go(-1), nudge(prev)));
+    next.addEventListener('click', () => (go(1), nudge(next)));
+    track.addEventListener('keydown', (e) => {
+      if (e.target !== track) return;
+      if (e.key === 'ArrowRight') (e.preventDefault(), go(1));
+      if (e.key === 'ArrowLeft') (e.preventDefault(), go(-1));
+    });
+    track.addEventListener('scroll', update, { passive: true });
+
+    // Desktop: drag to scroll with the mouse. Flicks keep momentum, then ease
+    // onto the nearest card; CSS snapping stays off until the glide has landed
+    // so the browser never yanks the track mid-motion.
+    const cursor = root.querySelector<HTMLElement>('[data-cursor]')!;
+    const fine = matchMedia('(hover: hover) and (pointer: fine)');
+    let down = false;
+    let moved = false;
+    let startX = 0;
+    let startLeft = 0;
+    let glide = 0;
+    let samples: { x: number; t: number }[] = [];
+
+    // Real actions (links, play buttons) keep the normal pointer; the card-wide quick-view layer doesn't count.
+    const overAction = (t: EventTarget | null) =>
+      !!(t as Element | null)?.closest?.('a, iframe, button:not(.card__open)');
+
+    // The "Drag" circle trails the pointer with frame-rate-independent easing
+    // (same feel at 60Hz and 120Hz), and hides whenever it would be stale.
+    let cx = 0, cy = 0, tx = 0, ty = 0, follow = 0, last = 0;
+    const chase = (now: number) => {
+      const dt = Math.min(64, now - (last || now - 16.7));
+      last = now;
+      const k = 1 - Math.pow(1 - 0.3, dt / 16.7);
+      cx += (tx - cx) * k;
+      cy += (ty - cy) * k;
+      cursor.style.transform = `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`;
+      if (Math.abs(tx - cx) + Math.abs(ty - cy) > 0.2) follow = requestAnimationFrame(chase);
+      else {
+        follow = 0;
+        last = 0;
+      }
+    };
+    const aim = (e: PointerEvent, jump = false) => {
+      tx = e.clientX;
+      ty = e.clientY;
+      if (jump || reduce.matches) {
+        cx = tx;
+        cy = ty;
+        cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
+      }
+      if (!follow) follow = requestAnimationFrame(chase);
+    };
+    const hideCursor = () => {
+      if (!down) root.removeAttribute('data-cursor-on');
+    };
+    // Page scrolled under a still mouse, or the mouse left the window: hide until it moves again.
+    addEventListener('scroll', hideCursor, { passive: true });
+    document.documentElement.addEventListener('mouseleave', hideCursor);
+
+    const slideWidth = () => {
+      const slide = track.firstElementChild as HTMLElement | null;
+      return (slide?.offsetWidth ?? track.clientWidth) + (parseFloat(getComputedStyle(track).columnGap) || 0);
+    };
+    const settle = (velocity: number) => {
+      const max = track.scrollWidth - track.clientWidth;
+      const w = slideWidth();
+      // Project where a flick would coast to, then land on the nearest card.
+      const projected = track.scrollLeft - velocity * 260;
+      const target = Math.max(0, Math.min(max, Math.round(projected / w) * w));
+      const from = track.scrollLeft;
+      const dist = target - from;
+      if (reduce.matches || Math.abs(dist) < 1) {
+        track.scrollLeft = target;
+        root.removeAttribute('data-dragging');
+        return;
+      }
+      const duration = Math.min(900, Math.max(380, Math.abs(dist) * 0.9));
+      const t0 = performance.now();
+      const ease = (t: number) => 1 - Math.pow(1 - t, 4); // easeOutQuart
+      const frame = (now: number) => {
+        const t = Math.min(1, (now - t0) / duration);
+        track.scrollLeft = from + dist * ease(t);
+        if (t < 1) glide = requestAnimationFrame(frame);
+        else {
+          glide = 0;
+          root.removeAttribute('data-dragging');
+        }
+      };
+      glide = requestAnimationFrame(frame);
+    };
+
+    track.addEventListener('pointerenter', (e) => {
+      if (e.pointerType === 'mouse' && fine.matches) aim(e, true);
+    });
+    track.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || !fine.matches) return;
+      aim(e);
+      root.toggleAttribute('data-cursor-on', down || !overAction(e.target));
+      if (!down) return;
+      const dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) > 5) {
+        moved = true;
+        root.setAttribute('data-dragging', ''); // snapping off, hover effects paused
+        track.setPointerCapture(e.pointerId); // keep dragging even if the pointer leaves the track
+      }
+      if (!moved) return;
+      track.scrollLeft = startLeft - dx;
+      const now = performance.now();
+      samples.push({ x: e.clientX, t: now });
+      while (samples.length > 2 && now - samples[0].t > 90) samples.shift();
+    });
+    track.addEventListener('pointerleave', () => {
+      if (!down) root.removeAttribute('data-cursor-on');
+    });
+    track.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse' || e.button !== 0 || !fine.matches) return;
+      cancelAnimationFrame(glide);
+      e.preventDefault(); // no text selection or native image drag
+      down = true;
+      moved = false;
+      startX = e.clientX;
+      startLeft = track.scrollLeft;
+      samples = [{ x: e.clientX, t: performance.now() }];
+    });
+    const release = (e: PointerEvent) => {
+      if (!down) return;
+      down = false;
+      if (track.hasPointerCapture?.(e.pointerId)) track.releasePointerCapture(e.pointerId);
+      if (!track.contains(document.elementFromPoint(e.clientX, e.clientY))) root.removeAttribute('data-cursor-on');
+      if (!moved) {
+        root.removeAttribute('data-dragging');
+        return;
+      }
+      const first = samples[0];
+      const last = samples[samples.length - 1];
+      const dt = Math.max(16, last.t - first.t);
+      const fresh = performance.now() - last.t < 80; // a pause before letting go cancels the flick
+      settle(fresh ? (last.x - first.x) / dt : 0);
+    };
+    window.addEventListener('pointerup', release);
+    window.addEventListener('pointercancel', release);
+    // A drag shouldn't count as a click on the card underneath.
+    track.addEventListener(
+      'click',
+      (e) => {
+        if (moved) {
+          e.preventDefault();
+          e.stopPropagation();
+          moved = false;
+        }
+      },
+      true,
+    );
+    track.addEventListener('dragstart', (e) => e.preventDefault());
+    new ResizeObserver(update).observe(track);
+    update();
+  });
+</script>

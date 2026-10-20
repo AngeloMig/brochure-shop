@@ -1,0 +1,27 @@
+---
+import { site } from '../config/site';
+import { featuredProducts } from '../lib/catalog';
+import SectionHead from './SectionHead.astro';
+import Carousel from './Carousel.astro';
+import ProductCard from './ProductCard.astro';
+import Pill from './Pill.astro';
+import CurrencySwitch from './CurrencySwitch.astro';
+---
+
+{
+  featuredProducts.length > 0 && (
+    <section id="featured" class="section" aria-labelledby="featured-title">
+      <div class="container">
+        <SectionHead id="featured-title" heading={site.featured.heading} text={site.featured.text}>
+          <Pill href="#all-finds" label="See all finds" variant="secondary" />
+          <CurrencySwitch />
+        </SectionHead>
+        <Carousel label="Top picks">
+          {featuredProducts.map((product) => (
+            <ProductCard product={product} variant="featured" />
+          ))}
+        </Carousel>
+      </div>
+    </section>
+  )
+}

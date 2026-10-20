@@ -1,0 +1,983 @@
+---
+/**
+ * Quick view — the only product detail view on the site (there are no product
+ * pages). Any element with data-quickview="<product id>" opens it. The URL
+ * gets #find-<id> while it's open, so a single find can be shared directly.
+ */
+import { products, videosForProduct } from '../lib/catalog';
+import { imageAttrs } from '../lib/images';
+import { isUsableUrl } from '../lib/links';
+import { withBase } from '../lib/paths';
+import CurrencySwitch from './CurrencySwitch.astro';
+
+const data = Object.fromEntries(
+  products.map((p) => [
+    p.id,
+    {
+      name: p.name,
+      category: p.category,
+      description: p.description,
+      price: typeof p.price === 'number' ? p.price : null,
+      badge: p.badge ?? '',
+      alt: p.imageAlt ?? p.name,
+      fallback: p.imageFallback ? withBase(p.imageFallback) : '',
+      url: isUsableUrl(p.affiliateUrl) ? p.affiliateUrl : '',
+      images: [p.image, ...(p.gallery ?? [])]
+        .filter(Boolean)
+        .map((src) => imageAttrs(src, { ratio: 1, widths: [480, 800, 1100] })),
+      thumbs: [p.image, ...(p.gallery ?? [])]
+        .filter(Boolean)
+        .map((src) => imageAttrs(src, { ratio: 1, widths: [160] })?.src ?? ''),
+      videos: videosForProduct(p).map((v) => ({
+        caption: v.caption,
+        thumb: imageAttrs(v.thumbnail, { ratio: 9 / 16, widths: [160] })?.src ?? '',
+        url: isUsableUrl(v.tiktokUrl) ? v.tiktokUrl : '',
+      })),
+    },
+  ]),
+);
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+---
+
+<script type="application/json" id="qv-data" set:html={json} />
+
+<dialog class="qv" aria-labelledby="qv-title" tabindex="-1" data-qv>
+  <div class="qv__bar">
+    <button class="qv__float qv__close" type="button" data-qv-close>
+      <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">
+        <path d="M1 1l12 12M13 1 1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path>
+      </svg>
+      <span class="visually-hidden">Close quick view</span>
+    </button>
+    <button class="qv__float qv__share" type="button" data-qv-share>
+      <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true">
+        <path d="M6.6 9.4a3 3 0 0 0 4.3 0l2.2-2.2a3 3 0 0 0-4.3-4.3l-.9.9M9.4 6.6a3 3 0 0 0-4.3 0L2.9 8.8a3 3 0 0 0 4.3 4.3l.9-.9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+      </svg>
+      <span data-qv-share-label>Copy link</span>
+    </button>
+  </div>
+  <span class="visually-hidden" aria-live="polite" data-qv-share-status></span>
+
+  <div class="qv__scroll" data-qv-scroll>
+    <!-- Immersive photo: fills the top on phones, the whole stage on desktop -->
+    <div class="qv__hero" data-qv-panel>
+      <img class="qv__blur" alt="" aria-hidden="true" data-qv-blur />
+      <img class="qv__photo" alt="" data-qv-img data-fallback sizes="(min-width: 900px) 1600px, 300vw" />
+      <span class="media-fallback" aria-hidden="true">Image coming soon</span>
+      <span class="qv__badge" data-qv-badge hidden></span>
+      <button class="qv__nav qv__nav--prev" type="button" data-qv-prev aria-label="Previous photo">
+        <svg viewBox="0 0 8 10" width="7" height="9" aria-hidden="true"><path d="M8 0v10L0 5z" fill="currentColor"></path></svg>
+      </button>
+      <button class="qv__nav qv__nav--next" type="button" data-qv-next aria-label="Next photo">
+        <svg viewBox="0 0 8 10" width="7" height="9" aria-hidden="true"><path d="M0 0v10l8-5z" fill="currentColor"></path></svg>
+      </button>
+      <!-- Subtle thumbnail strip (only when a find has more than one photo) -->
+      <div class="qv__thumbs" role="group" aria-label="Photos" data-qv-thumbs hidden></div>
+      <span class="visually-hidden" aria-live="polite" data-qv-counter></span>
+    </div>
+
+    <div class="qv__card" data-qv-card>
+      <span class="qv__grab" aria-hidden="true"></span>
+      <p class="qv__chip" data-qv-cat></p>
+      <h2 id="qv-title" class="display qv__title" data-qv-name></h2>
+      <div class="qv__price-row">
+        <p class="qv__price" data-qv-price></p>
+        <CurrencySwitch class="qv__currency" />
+      </div>
+      <p class="qv__desc" data-qv-desc></p>
+
+      <div class="qv__videos" data-qv-videos hidden>
+        <p class="qv__label">From my TikTok</p>
+        <ul role="list" data-qv-video-list></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="qv__foot">
+    <a class="pill pill--primary pill--block" href="#" target="_blank" rel="noopener sponsored" data-qv-link>
+      <span class="pill__fill" aria-hidden="true"></span>
+      <svg class="pill__arrow pill__arrow--lead" viewBox="0 0 8 10" width="8" height="10" aria-hidden="true"><path d="M0 0v10l8-5z" fill="currentColor"></path></svg>
+      <span class="pill__label">View on TikTok<span class="visually-hidden"> (opens in a new tab)</span></span>
+      <svg class="pill__arrow pill__arrow--trail" viewBox="0 0 8 10" width="8" height="10" aria-hidden="true"><path d="M0 0v10l8-5z" fill="currentColor"></path></svg>
+    </a>
+    <span class="pill pill--block pill--unavailable" data-qv-soon>Link coming soon</span>
+    <p class="qv__note">Affiliate link</p>
+  </div>
+</dialog>
+
+<style is:global>
+  /*
+   * Immersive quick view (option 3). Phones: full screen — the photo fills the
+   * top and the details card slides up over it, with the TikTok button pinned
+   * at the bottom. Desktop: a wide stage with the photo and a floating card.
+   */
+  html:has(.qv[open]) {
+    overflow: hidden;
+  }
+  .qv:focus {
+    outline: none;
+  }
+  .qv {
+    /* Phones: a full-height sheet that glides up from the bottom (iOS-style curve) */
+    --qv-from: translate3d(0, 100%, 0);
+    --qv-in: 560ms cubic-bezier(0.32, 0.72, 0, 1);
+    --qv-out: 380ms cubic-bezier(0.4, 0, 0.9, 0.6);
+    width: 100%;
+    max-width: none;
+    height: calc(100dvh - 10px - env(safe-area-inset-top));
+    max-height: none;
+    margin: auto 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: 28px 28px 0 0;
+    background: var(--color-panel);
+    color: var(--color-ink);
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+    transform: var(--qv-from);
+    will-change: transform;
+    transition:
+      transform var(--qv-in),
+      opacity var(--qv-in),
+      overlay var(--qv-in) allow-discrete,
+      display var(--qv-in) allow-discrete;
+  }
+  .qv[data-closing] {
+    transform: var(--qv-from);
+    transition:
+      transform var(--qv-out),
+      opacity var(--qv-out);
+  }
+  .qv[data-closing]::backdrop {
+    opacity: 0;
+    transition: opacity var(--qv-out);
+  }
+  .qv[open] {
+    display: flex;
+    transform: none;
+  }
+  /* Entry/exit start + end state, toggled from script */
+  .qv[open][data-from],
+  .qv[open][data-closing] {
+    transform: var(--qv-from);
+  }
+  .qv[data-from] {
+    transition: none;
+  }
+  .qv[data-from]::backdrop {
+    opacity: 0;
+    transition: none;
+  }
+  .qv::backdrop {
+    background: var(--color-scrim);
+    opacity: 0;
+    transition:
+      opacity 420ms ease,
+      overlay var(--dur) allow-discrete,
+      display var(--dur) allow-discrete;
+  }
+  .qv[open]::backdrop {
+    opacity: 1;
+  }
+  @starting-style {
+    .qv[open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  /* Floating controls over the photo */
+  .qv__bar {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 4;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  .qv__float {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 44px;
+    border-radius: var(--radius-pill);
+    background: rgb(255 255 255 / 0.9);
+    color: var(--color-ink);
+    box-shadow:
+      0 1px 2px rgb(41 43 39 / 0.08),
+      0 6px 18px rgb(41 43 39 / 0.1);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    transition:
+      background-color var(--dur-fast) ease,
+      color var(--dur-fast) ease;
+  }
+  .qv__close {
+    width: 44px;
+  }
+  .qv__close svg {
+    transition: transform 400ms var(--ease-out);
+  }
+  .qv__share {
+    padding: 0 16px;
+    font-size: var(--text-xs);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  @media (hover: hover) {
+    .qv__float:hover {
+      background: #fff;
+    }
+    .qv__close:hover svg {
+      transform: rotate(90deg);
+    }
+  }
+  .qv__share[data-done] {
+    background: var(--color-accent-tint);
+    color: var(--color-accent-ink);
+  }
+
+  .qv__scroll {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* Photo */
+  .qv__hero {
+    position: sticky;
+    top: 0;
+    height: 58dvh;
+    overflow: hidden;
+    background: var(--color-panel);
+  }
+  .qv__blur {
+    display: none;
+    position: absolute;
+    max-width: none;
+    object-fit: cover;
+    filter: blur(40px) saturate(1.15);
+  }
+  .qv__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 42%;
+  }
+  .qv__photo.is-swapping {
+    opacity: 0.35;
+  }
+  .qv__badge {
+    position: absolute;
+    top: 68px;
+    left: 16px;
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    background: var(--color-bg);
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+  .qv__badge[hidden],
+  .qv__nav[hidden],
+  .qv__thumbs[hidden] {
+    display: none;
+  }
+  .qv__nav {
+    display: none; /* phones: tap thumbnails instead */
+  }
+
+  /* Subtle thumbnail strip — frosted, small, sits on the photo */
+  .qv__thumbs {
+    position: absolute;
+    left: 14px;
+    bottom: 42px; /* clears the card's rounded overlap */
+    z-index: 2;
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 16px;
+    background: rgb(255 255 255 / 0.55);
+    -webkit-backdrop-filter: blur(10px) saturate(1.2);
+    backdrop-filter: blur(10px) saturate(1.2);
+    box-shadow: 0 4px 16px rgb(41 43 39 / 0.1);
+  }
+  .qv__thumb {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    opacity: 0.6;
+    transition:
+      opacity var(--dur) var(--ease-out),
+      transform var(--dur) var(--ease-out);
+  }
+  .qv__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .qv__thumb::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1.5px transparent;
+    transition: box-shadow var(--dur) var(--ease-out);
+  }
+  .qv__thumb[aria-pressed='true'] {
+    opacity: 1;
+  }
+  .qv__thumb[aria-pressed='true']::after {
+    box-shadow: inset 0 0 0 2px var(--color-ink);
+  }
+  @media (hover: hover) {
+    .qv__thumb:hover {
+      opacity: 1;
+    }
+  }
+  .qv__thumb:focus-visible {
+    outline-offset: 1px;
+  }
+
+  /* Details card — slides up over the photo on phones */
+  .qv__card {
+    position: relative;
+    z-index: 1;
+    min-height: calc(38dvh + 28px);
+    margin-top: -28px;
+    padding: 0 20px calc(140px + env(safe-area-inset-bottom));
+    border-radius: 28px 28px 0 0;
+    background: var(--color-bg);
+    box-shadow: 0 -10px 30px rgb(41 43 39 / 0.08);
+    transition:
+      transform 640ms cubic-bezier(0.32, 0.72, 0, 1) 60ms,
+      opacity 420ms ease 60ms;
+  }
+  /* Photo eases in from a slight zoom; details rise in sequence */
+  .qv__photo {
+    transition:
+      opacity 260ms ease,
+      scale 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .qv[data-from] .qv__photo {
+    scale: 1.08;
+    transition: none;
+  }
+  .qv__card > * {
+    transition:
+      opacity 500ms ease,
+      transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .qv__card > :nth-child(2) { transition-delay: 120ms; }
+  .qv__card > :nth-child(3) { transition-delay: 160ms; }
+  .qv__card > :nth-child(4) { transition-delay: 200ms; }
+  .qv__card > :nth-child(5) { transition-delay: 240ms; }
+  .qv__card > :nth-child(n + 6) { transition-delay: 280ms; }
+  .qv[data-from] .qv__card > * {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+    transition: none;
+  }
+  .qv__foot {
+    transition:
+      opacity 420ms ease 220ms,
+      transform 560ms cubic-bezier(0.22, 1, 0.36, 1) 220ms;
+  }
+  .qv[data-from] .qv__foot {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+    transition: none;
+  }
+  .qv[data-from] .qv__card {
+    transform: translate3d(0, 24%, 0);
+    transition: none;
+  }
+  .qv__grab {
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 10px auto 16px;
+    border-radius: 2px;
+    background: var(--color-border);
+  }
+  .qv__chip {
+    display: inline-flex;
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-tint);
+    color: var(--color-accent-ink);
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+  .qv__title {
+    margin-top: 14px;
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 1.875rem);
+    line-height: 1.04;
+  }
+  .qv__price-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .qv__currency[hidden] {
+    display: none;
+  }
+  .qv__price {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .qv__price small {
+    display: block;
+    margin-top: 4px;
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+    font-weight: 400;
+  }
+  .qv__desc {
+    margin-top: 16px;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+
+  .qv__videos {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--color-border);
+  }
+  .qv__videos[hidden] {
+    display: none;
+  }
+  .qv__label {
+    margin-bottom: 12px;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .qv__videos ul {
+    display: grid;
+    gap: 10px;
+  }
+  .qv-video {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 44px;
+    font-size: var(--text-sm);
+    text-decoration: none;
+  }
+  .qv-video img,
+  .qv-video__ph {
+    flex: none;
+    width: 40px;
+    aspect-ratio: 9 / 16;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--color-panel);
+  }
+  .qv-video__text {
+    display: grid;
+    gap: 2px;
+  }
+  .qv-video__action {
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+  }
+  a.qv-video:hover .qv-video__action {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Pinned TikTok button */
+  .qv__foot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    display: grid;
+    gap: 10px;
+    padding: 28px 20px calc(14px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, var(--color-bg) 72%, rgb(255 255 255 / 0));
+  }
+  .qv__foot .pill {
+    min-height: 52px;
+  }
+  .qv__foot [hidden] {
+    display: none;
+  }
+  .qv__note {
+    color: var(--color-muted);
+    font-size: var(--text-xs);
+    text-align: center;
+  }
+
+  /* ── Desktop: wide stage, photo across, card floating on the right ── */
+  @media (min-width: 900px) {
+    .qv {
+      --qv-from: translate3d(0, 16px, 0) scale(0.97);
+      --qv-in: 480ms cubic-bezier(0.22, 1, 0.36, 1);
+      --qv-out: 260ms cubic-bezier(0.4, 0, 1, 1);
+      width: min(1120px, 100% - 48px);
+      height: min(760px, 100dvh - 48px);
+      margin: auto;
+      border-radius: 28px;
+      opacity: 0;
+    }
+    .qv[open] {
+      opacity: 1;
+    }
+    .qv[open][data-from],
+    .qv[open][data-closing] {
+      opacity: 0;
+    }
+    .qv__scroll {
+      overflow: hidden;
+    }
+    .qv__hero {
+      position: absolute;
+      inset: 0;
+      height: auto;
+    }
+    .qv__blur,
+    .qv__photo {
+      inset: 0 auto;
+      left: calc((100% - 452px) / 2);
+      width: auto;
+      height: 100%;
+      aspect-ratio: 1;
+      max-width: none;
+      translate: -50% 0;
+    }
+    .qv__blur {
+      display: block;
+      scale: 1.6;
+    }
+    .qv__photo {
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
+      mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
+    }
+    .qv__badge {
+      top: 84px;
+      left: 28px;
+    }
+    .qv__nav {
+      position: absolute;
+      top: 50%;
+      z-index: 2;
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 36px;
+      margin-top: -18px;
+      border-radius: var(--radius-pill);
+      background: rgb(255 255 255 / 0.9);
+      transition: transform var(--dur) var(--ease-out);
+    }
+    .qv__nav--prev {
+      left: 24px;
+    }
+    .qv__nav--next {
+      left: calc(100% - 452px - 24px - 48px);
+    }
+    .qv__nav--prev:hover {
+      transform: translateX(-2px);
+    }
+    .qv__nav--next:hover {
+      transform: translateX(2px);
+    }
+    .qv__thumbs {
+      left: 24px;
+      bottom: 24px;
+    }
+    .qv__thumb {
+      width: 52px;
+      height: 52px;
+    }
+    .qv__card {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      bottom: 16px;
+      width: 420px;
+      min-height: 0;
+      margin: 0;
+      padding: 32px 28px 150px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      border-radius: 24px;
+      box-shadow: 0 16px 50px -12px rgb(41 43 39 / 0.25);
+    }
+    .qv[data-from] .qv__card {
+      transform: translate3d(32px, 0, 0);
+      opacity: 0;
+    }
+    .qv__grab {
+      display: none;
+    }
+    .qv__bar {
+      top: 24px;
+      left: 24px;
+      right: 24px;
+    }
+    .qv__close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      box-shadow: none;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    .qv__close:hover {
+      background: var(--color-panel);
+    }
+    .qv__bar {
+      top: 8px;
+      left: 24px;
+      right: 24px;
+      height: 60px;
+      align-items: center;
+    }
+    .qv__share {
+      margin-right: auto;
+    }
+    .qv__foot {
+      left: auto;
+      right: 16px;
+      bottom: 16px;
+      width: 420px;
+      padding: 32px 28px 24px;
+      border-radius: 0 0 24px 24px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qv,
+    .qv__card,
+    .qv__card > *,
+    .qv__foot,
+    .qv__photo {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  type Img = { src: string; srcset?: string } | null;
+  type Entry = {
+    name: string;
+    category: string;
+    description: string;
+    price: number | null;
+    badge: string;
+    alt: string;
+    fallback: string;
+    url: string;
+    images: Img[];
+    thumbs: string[];
+    videos: { caption: string; thumb: string; url: string }[];
+  };
+
+  const data: Record<string, Entry> = JSON.parse(document.getElementById('qv-data')!.textContent || '{}');
+  const dialog = document.querySelector<HTMLDialogElement>('[data-qv]')!;
+  const $ = <T extends HTMLElement = HTMLElement>(sel: string) => dialog.querySelector<T>(sel)!;
+
+  const panel = $('[data-qv-panel]');
+  const img = $<HTMLImageElement>('[data-qv-img]');
+  const prev = $<HTMLButtonElement>('[data-qv-prev]');
+  const next = $<HTMLButtonElement>('[data-qv-next]');
+  const counter = $('[data-qv-counter]');
+  const link = $<HTMLAnchorElement>('[data-qv-link]');
+  const soon = $('[data-qv-soon]');
+  const videoWrap = $('[data-qv-videos]');
+  const videoList = $('[data-qv-video-list]');
+
+  let keyboardUser = false;
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ') keyboardUser = true;
+  }, true);
+  addEventListener('pointerdown', () => (keyboardUser = false), true);
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  let current: Entry | null = null;
+  let currentId = '';
+  const track = (name: string, props?: Record<string, string>) => (window as any).beaTrack?.(name, props);
+
+  // Share: native share sheet on phones, copy-to-clipboard elsewhere.
+  const shareBtn = $<HTMLButtonElement>('[data-qv-share]');
+  const shareLabel = $('[data-qv-share-label]');
+  const shareStatus = $('[data-qv-share-status]');
+  const canNativeShare = 'share' in navigator && matchMedia('(pointer: coarse)').matches;
+  const idleLabel = canNativeShare ? 'Share' : 'Copy link';
+  let shareTimer = 0;
+  function resetShare() {
+    window.clearTimeout(shareTimer);
+    shareBtn.removeAttribute('data-done');
+    shareLabel.textContent = idleLabel;
+    shareStatus.textContent = '';
+  }
+  async function copyText(text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const field = Object.assign(document.createElement('textarea'), { value: text });
+      field.setAttribute('readonly', '');
+      field.style.cssText = 'position:fixed;opacity:0';
+      dialog.append(field);
+      field.select();
+      const ok = document.execCommand('copy');
+      field.remove();
+      return ok;
+    }
+  }
+  shareBtn.addEventListener('click', async () => {
+    if (!current) return;
+    const url = `${location.origin}${location.pathname}#find-${currentId}`;
+    if (canNativeShare) {
+      try {
+        await navigator.share({ title: current.name, url });
+        track('Share', { product: currentId, method: 'native' });
+      } catch {
+        /* dismissed */
+      }
+      return;
+    }
+    const ok = await copyText(url);
+    shareLabel.textContent = ok ? 'Link copied' : 'Copy failed';
+    shareStatus.textContent = ok ? `Link to ${current.name} copied` : 'Could not copy the link';
+    if (ok) {
+      shareBtn.setAttribute('data-done', '');
+      track('Share', { product: currentId, method: 'copy' });
+    }
+    shareTimer = window.setTimeout(resetShare, 2200);
+  });
+  let index = 0;
+  let trigger: HTMLElement | null = null;
+
+  const blur = $<HTMLImageElement>('[data-qv-blur]');
+  const thumbs = $('[data-qv-thumbs]');
+
+  function renderThumbs(entry: Entry) {
+    thumbs.replaceChildren();
+    thumbs.hidden = entry.thumbs.length < 2;
+    if (thumbs.hidden) return;
+    entry.thumbs.forEach((src, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'qv__thumb';
+      b.setAttribute('aria-label', `Photo ${i + 1} of ${entry.thumbs.length}`);
+      b.setAttribute('aria-pressed', String(i === 0));
+      const t = Object.assign(document.createElement('img'), { src, alt: '', loading: 'lazy', decoding: 'async' });
+      b.append(t);
+      b.addEventListener('click', () => showImage(i));
+      thumbs.append(b);
+    });
+  }
+
+  function showImage(i: number) {
+    if (!current) return;
+    const imgs = current.images;
+    index = (i + imgs.length) % imgs.length;
+    const item = imgs[index];
+    panel.classList.toggle('is-missing', !item);
+    const apply = () => {
+      if (item) {
+        img.removeAttribute('srcset');
+        img.src = item.src;
+        if (item.srcset) img.srcset = item.srcset;
+        blur.src = item.src;
+      } else {
+        img.removeAttribute('src');
+        img.removeAttribute('srcset');
+        blur.removeAttribute('src');
+      }
+    };
+    // Soft crossfade when switching photos
+    if (img.getAttribute('src') && dialog.open && !reduceMotion.matches) {
+      img.classList.add('is-swapping');
+      window.setTimeout(() => {
+        apply();
+        img.classList.remove('is-swapping');
+      }, 140);
+    } else apply();
+    img.alt = imgs.length > 1 ? `${current.alt} (photo ${index + 1} of ${imgs.length})` : current.alt;
+    const multi = imgs.length > 1;
+    prev.hidden = next.hidden = !multi;
+    counter.textContent = multi ? `Photo ${index + 1} of ${imgs.length}` : '';
+    thumbs.querySelectorAll('.qv__thumb').forEach((t, n) => t.setAttribute('aria-pressed', String(n === index)));
+  }
+
+  function renderVideos(entry: Entry) {
+    videoList.replaceChildren();
+    videoWrap.hidden = entry.videos.length === 0;
+    for (const v of entry.videos) {
+      const li = document.createElement('li');
+      const row = document.createElement(v.url ? 'a' : 'div');
+      row.className = 'qv-video';
+      if (v.url && row instanceof HTMLAnchorElement) {
+        row.href = v.url;
+        row.target = '_blank';
+        row.rel = 'noopener';
+      }
+      const thumb = v.thumb ? Object.assign(document.createElement('img'), { src: v.thumb, alt: '', loading: 'lazy' }) : null;
+      if (thumb) thumb.dataset.fallback = '';
+      const ph = document.createElement('span');
+      ph.className = 'qv-video__ph';
+      const text = document.createElement('span');
+      text.className = 'qv-video__text';
+      const cap = document.createElement('span');
+      cap.textContent = v.caption;
+      const action = document.createElement('span');
+      action.className = 'qv-video__action';
+      action.textContent = v.url ? 'Watch on TikTok' : 'Video coming soon';
+      if (v.url) {
+        const sr = document.createElement('span');
+        sr.className = 'visually-hidden';
+        sr.textContent = ' (opens in a new tab)';
+        action.append(sr);
+      }
+      text.append(cap, action);
+      row.append(thumb ?? ph, text);
+      li.append(row);
+      videoList.append(li);
+    }
+  }
+
+  function open(id: string, from?: HTMLElement | null) {
+    const entry = data[id];
+    if (!entry) return;
+    current = entry;
+    trigger = from ?? null;
+
+    $('[data-qv-name]').textContent = entry.name;
+    $('[data-qv-cat]').textContent = entry.category;
+    $('[data-qv-desc]').textContent = entry.description;
+    const price = $('[data-qv-price]');
+    price.replaceChildren();
+    if (typeof entry.price === 'number') {
+      const amount = Object.assign(document.createElement('span'), {});
+      amount.dataset.priceUsd = String(entry.price);
+      price.append(amount, Object.assign(document.createElement('small'), { textContent: 'Sample price · final price on TikTok' }));
+      (window as any).beaFormatPrices?.(price);
+    } else {
+      price.textContent = 'Check price on TikTok';
+    }
+    $('.qv__currency').hidden = typeof entry.price !== 'number';
+    currentId = id;
+    resetShare();
+    const badge = $('[data-qv-badge]');
+    badge.textContent = entry.badge;
+    badge.hidden = !entry.badge;
+
+    link.hidden = !entry.url;
+    soon.hidden = Boolean(entry.url);
+    link.dataset.product = id;
+    if (entry.url) link.href = entry.url;
+    else link.setAttribute('href', '#');
+    link.setAttribute('aria-label', `View ${entry.name} on TikTok (opens in a new tab)`);
+
+    renderVideos(entry);
+    renderThumbs(entry);
+    img.removeAttribute('src');
+    showImage(0);
+    $('[data-qv-scroll]').scrollTop = 0;
+    $('[data-qv-card]').scrollTop = 0;
+
+    if (!dialog.open) {
+      dialog.removeAttribute('data-closing');
+      // Start from the "from" state, then release it next frame so the entry animates.
+      dialog.setAttribute('data-from', '');
+      dialog.showModal();
+      void dialog.offsetHeight;
+      requestAnimationFrame(() => requestAnimationFrame(() => dialog.removeAttribute('data-from')));
+      // Mouse/touch: focus the sheet itself (no ring on the close button). Keyboard: keep the close button focused.
+      if (!keyboardUser) dialog.focus({ preventScroll: true });
+    }
+    history.replaceState(null, '', `#find-${id}`);
+    track('Quick view', { product: id });
+  }
+
+  dialog.addEventListener('close', () => {
+    if (location.hash.startsWith('#find-')) history.replaceState(null, '', location.pathname + location.search);
+    // Return focus to the card; only show the ring if the visitor is using a keyboard.
+    if (trigger) {
+      if (!keyboardUser) trigger.setAttribute('data-quiet-focus', '');
+      trigger.focus({ preventScroll: true, focusVisible: keyboardUser } as FocusOptions);
+      trigger.addEventListener('blur', () => trigger?.removeAttribute('data-quiet-focus'), { once: true });
+    }
+    trigger = null;
+  });
+
+  // Animated close: slide/fade out first, then actually close the dialog.
+  let closing = 0;
+  function closeAnimated() {
+    if (!dialog.open || dialog.hasAttribute('data-closing')) return;
+    if (reduceMotion.matches) return dialog.close();
+    dialog.setAttribute('data-closing', '');
+    const done = () => {
+      window.clearTimeout(closing);
+      dialog.removeEventListener('transitionend', onEnd);
+      dialog.close();
+      dialog.removeAttribute('data-closing');
+    };
+    const onEnd = (e: TransitionEvent) => {
+      if (e.target === dialog && e.propertyName === 'transform') done();
+    };
+    dialog.addEventListener('transitionend', onEnd);
+    closing = window.setTimeout(done, 600); // safety net
+  }
+  dialog.addEventListener('cancel', (e) => {
+    e.preventDefault(); // Esc → animate instead of snapping shut
+    closeAnimated();
+  });
+  $('[data-qv-close]').addEventListener('click', closeAnimated);
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) closeAnimated(); // backdrop
+  });
+  prev.addEventListener('click', () => showImage(index - 1));
+  next.addEventListener('click', () => showImage(index + 1));
+  panel.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') showImage(index - 1);
+    if (e.key === 'ArrowRight') showImage(index + 1);
+  });
+  img.addEventListener('error', () => {
+    // First image falls back to the product's illustration, then to the placeholder.
+    if (current?.fallback && index === 0 && img.getAttribute('src') !== current.fallback) {
+      img.removeAttribute('srcset');
+      img.src = current.fallback;
+    } else {
+      panel.classList.add('is-missing');
+    }
+  });
+  img.addEventListener('load', () => panel.classList.remove('is-missing'));
+
+  document.addEventListener('click', (e) => {
+    const el = (e.target as Element).closest<HTMLElement>('[data-quickview]');
+    if (!el) return;
+    e.preventDefault();
+    open(el.dataset.quickview!, el);
+  });
+
+  const fromHash = () => {
+    const m = location.hash.match(/^#find-(.+)$/);
+    if (m && data[decodeURIComponent(m[1])]) open(decodeURIComponent(m[1]));
+  };
+  fromHash();
+  window.addEventListener('hashchange', fromHash);
+</script>

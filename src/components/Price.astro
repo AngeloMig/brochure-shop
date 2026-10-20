@@ -1,0 +1,20 @@
+---
+/** A product price that follows the visitor's USD / PHP choice. */
+import { formatPrice } from '../lib/price';
+
+interface Props {
+  usd?: number;
+  class?: string;
+}
+const { usd, class: className } = Astro.props;
+---
+
+{
+  typeof usd === 'number' ? (
+    <span class:list={['price', className]} data-price-usd={usd}>
+      {formatPrice(usd)}
+    </span>
+  ) : (
+    <span class:list={['price', 'price--none', className]}>Check price on TikTok</span>
+  )
+}

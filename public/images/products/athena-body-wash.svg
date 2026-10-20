@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-label="Athena Brightening &amp; Refreshing Body Wash">
+<title>Athena Brightening &amp; Refreshing Body Wash</title>
+  <defs>
+    <linearGradient id="liquid" x1="0" x2="1">
+      <stop offset="0" stop-color="#9f84d8"/>
+      <stop offset=".18" stop-color="#c7b2f2"/>
+      <stop offset=".55" stop-color="#b89cec"/>
+      <stop offset=".88" stop-color="#c7b2f2"/>
+      <stop offset="1" stop-color="#9f84d8"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" x2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#fff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="label" x1="0" x2="1">
+      <stop offset="0" stop-color="#ececea"/>
+      <stop offset=".12" stop-color="#fbfbfa"/>
+      <stop offset=".85" stop-color="#fbfbfa"/>
+      <stop offset="1" stop-color="#e6e6e3"/>
+    </linearGradient>
+    <radialGradient id="shadow" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#000" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+  </defs><ellipse cx="500" cy="866" rx="190" ry="26" fill="url(#shadow)"/>
+  <g fill="#111">
+    <path d="M350 130 q-8 0 -8 -8 q0 -10 14 -12 L460 100 q12 -2 22 -2 h70 q14 0 14 14 v26 q0 10 -10 10 h-84 l-30 6 L360 132 q-4 1 -10 -2z"/>
+    <rect x="442" y="136" width="116" height="10" rx="3" fill="#1c1c1c"/>
+    <rect x="470" y="146" width="60" height="70" rx="4"/>
+    <rect x="440.0" y="216" width="120" height="80" rx="10"/>
+    <rect x="448.0" y="222" width="10" height="68" rx="5" fill="#2e2e2e" opacity=".9"/>
+  </g>
+  <rect x="370" y="300" width="260" height="560" rx="16" fill="url(#liquid)"/>
+  <rect x="370" y="300" width="260" height="22" rx="10" fill="#d8cbf6" opacity=".9"/>
+  <rect x="497" y="320" width="6" height="520" fill="#fff" opacity=".28"/>
+  <rect x="396" y="320" width="22" height="520" rx="11" fill="url(#shine)" opacity=".8"/>
+  <rect x="600" y="320" width="8" height="520" rx="4" fill="#fff" opacity=".25"/>
+  <g fill="#2a2440">
+    <text x="394" y="428" font-family="Didot, 'Bodoni 72', Georgia, 'Times New Roman', serif" font-size="23" letter-spacing=".3">BRIGHTENING</text>
+    <text x="394" y="460" font-family="Didot, 'Bodoni 72', Georgia, 'Times New Roman', serif" font-size="23" letter-spacing=".3">&amp; REFRESHING</text>
+    <text x="394" y="492" font-family="Didot, 'Bodoni 72', Georgia, 'Times New Roman', serif" font-size="23" letter-spacing=".3">BODY WASH</text>
+    <rect x="394" y="510" width="212" height="1.5"/>
+    <text font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="8" letter-spacing=".1">
+      <tspan x="394" y="530" font-weight="700">WITH NIACINAMIDE, VITAMIN C AND COLLAGEN</tspan>
+      <tspan x="394" y="544">GIVES YOU RADIANT, BRIGHT SKIN BY REPAIRING</tspan>
+      <tspan x="394" y="558">THE NOURISHES MOISTURE BARRIER AND</tspan>
+      <tspan x="394" y="572">BRIGHTENING THE SKIN.</tspan>
+    </text>
+    <rect x="394" y="586" width="212" height="1.5"/>
+    <text x="394" y="616" font-family="Didot, 'Bodoni 72', Georgia, 'Times New Roman', serif" font-size="15">℮ 400g/13.5fl.oz</text>
+    <text x="500" y="804" text-anchor="middle" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="800" font-size="40" letter-spacing="1" fill="#111">ATHENA<tspan font-size="12" dy="-22">®</tspan></text>
+  </g>
+</svg>

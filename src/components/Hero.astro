@@ -1,0 +1,131 @@
+---
+import { site } from '../config/site';
+import { isUsableUrl, external } from '../lib/links';
+import Media from './Media.astro';
+import Pill from './Pill.astro';
+
+const { hero } = site;
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__frame">
+    <Media
+      src={hero.image}
+      alt={hero.imageAlt}
+      ratio={16 / 9}
+      position={hero.imagePosition}
+      sizes="(max-width: 639px) 260vw, (max-width: 1023px) 160vw, 100vw"
+      eager
+      class="hero__media"
+      fallbackSrc={hero.fallbackImage}
+      fallbackLabel="Add your hero photo at public/images/hero.jpg"
+    />
+  </div>
+
+  <div class="hero__copy container">
+    <h1 id="hero-title" class="display h1">{hero.headline}</h1>
+    <div class="hero__aside">
+      <p class="lede">{hero.intro}</p>
+      <div class="hero__actions">
+        <Pill href="#featured" label={hero.primaryLabel} />
+        {
+          isUsableUrl(site.tiktokProfileUrl) ? (
+            <a class="text-link" href={site.tiktokProfileUrl} {...external}>
+              {hero.secondaryLabel}
+              <span class="visually-hidden"> (opens TikTok in a new tab)</span>
+            </a>
+          ) : (
+            <a class="text-link" href="#videos">
+              {hero.secondaryLabel}
+            </a>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    margin-top: calc(-1 * var(--header-h));
+  }
+  .hero__frame {
+    padding: 10px var(--gutter) 0;
+    max-width: calc(var(--page-max) + 2 * var(--gutter));
+    margin-inline: auto;
+  }
+  .hero__frame :global(.hero__media) {
+    border-radius: var(--radius-hero);
+    aspect-ratio: 1 / 1 !important; /* less zoom into the wide photo = sharper */
+    max-height: 72svh;
+    width: 100%;
+  }
+  @media (min-width: 640px) {
+    .hero__frame :global(.hero__media) {
+      aspect-ratio: 4 / 3 !important;
+    }
+  }
+  @media (min-width: 1024px) {
+    .hero__frame :global(.hero__media) {
+      aspect-ratio: auto !important;
+      height: clamp(460px, 66svh, 780px);
+      max-height: none;
+    }
+  }
+
+  .hero__copy {
+    display: grid;
+    gap: 24px;
+    padding-top: 40px;
+  }
+  .hero__copy h1 {
+    max-width: 13ch;
+  }
+  .hero__aside {
+    display: grid;
+    gap: 24px;
+    align-content: end;
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+  }
+  @media (min-width: 900px) {
+    .hero__copy {
+      grid-template-columns: 1.35fr 1fr;
+      gap: 64px;
+      padding-top: 72px;
+      align-items: end;
+    }
+    .hero__aside {
+      justify-self: end;
+      max-width: 440px;
+      padding-bottom: 6px;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__frame :global(img) {
+      animation: settle 1.4s var(--ease-out) both;
+    }
+    .hero__copy > * {
+      animation: rise 0.9s var(--ease-out) both;
+    }
+    .hero__copy > :nth-child(2) {
+      animation-delay: 120ms;
+    }
+  }
+  @keyframes settle {
+    from {
+      transform: scale(1.04);
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+</style>
