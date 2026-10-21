@@ -1,18 +1,22 @@
 ---
-/** A product price that follows the visitor's USD / PHP choice. */
+/** A product price that follows the visitor's ₱ PHP / $ USD choice. */
 import { formatPrice } from '../lib/price';
 
 interface Props {
+  /** Price in US dollars. */
   usd?: number;
+  /** Exact price in Philippine pesos (preferred — shown without "≈"). */
+  php?: number;
   class?: string;
 }
-const { usd, class: className } = Astro.props;
+const { usd, php, class: className } = Astro.props;
+const has = typeof usd === 'number' || typeof php === 'number';
 ---
 
 {
-  typeof usd === 'number' ? (
-    <span class:list={['price', className]} data-price-usd={usd}>
-      {formatPrice(usd)}
+  has ? (
+    <span class:list={['price', className]} data-price-usd={usd} data-price-php={php}>
+      {formatPrice({ usd, php })}
     </span>
   ) : (
     <span class:list={['price', 'price--none', className]}>Check price on TikTok</span>

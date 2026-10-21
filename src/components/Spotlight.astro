@@ -56,7 +56,7 @@ const product = getProduct(spotlight.productId);
           <div class="spotlight__info">
             <p class="spotlight__cat">{product.category}</p>
             <h3 class="display h3">{product.name}</h3>
-            <p class="spotlight__price"><Price usd={product.price} /></p>
+            <p class="spotlight__price"><Price usd={product.price} php={product.pricePhp} /></p>
             <p class="lede">{spotlight.text}</p>
             <div class="spotlight__actions">
               <Pill href={product.affiliateUrl} kind="affiliate" label="View on TikTok" srContext={product.name} />

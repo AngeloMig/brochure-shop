@@ -112,9 +112,15 @@ const shareImage = new URL(withBase(site.shareImage), Astro.site);
         if (saved === 'USD' || saved === 'PHP') currency = saved;
       } catch {}
       const formatPrices = (root: ParentNode = document) => {
-        root.querySelectorAll<HTMLElement>('[data-price-usd]').forEach((el) => {
-          const usd = Number(el.dataset.priceUsd);
-          el.textContent = currency === 'PHP' ? `≈ ${phpFmt.format(usd * cfg.usdToPhp)}` : usdFmt.format(usd);
+        root.querySelectorAll<HTMLElement>('[data-price-usd], [data-price-php]').forEach((el) => {
+          const usd = el.dataset.priceUsd ? Number(el.dataset.priceUsd) : null;
+          const php = el.dataset.pricePhp ? Number(el.dataset.pricePhp) : null;
+          // The currency that was entered shows exactly; the other is a conversion ("≈").
+          if (currency === 'PHP') {
+            el.textContent = php !== null ? phpFmt.format(php) : `≈ ${phpFmt.format((usd ?? 0) * cfg.usdToPhp)}`;
+          } else {
+            el.textContent = usd !== null ? usdFmt.format(usd) : `≈ ${usdFmt.format((php ?? 0) / cfg.usdToPhp)}`;
+          }
         });
         document
           .querySelectorAll<HTMLElement>('[data-currency-set]')

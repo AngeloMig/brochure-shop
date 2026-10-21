@@ -20,9 +20,10 @@ const demo = (id: string) => `https://images.unsplash.com/photo-${id}`;
  * Leave `affiliateUrl` empty and the site shows "Link coming soon" instead of
  * a broken button.
  *
- * `price` values are SAMPLE prices in US dollars — update them to match
- * TikTok Shop, or delete the line to show "Check price on TikTok" instead.
- * Visitors can switch to pesos; the rate lives in src/config/site.ts → currency.
+ * Prices are SAMPLES. Prefer `pricePhp` (exact peso price from TikTok Shop);
+ * `price` is US dollars. Visitors can switch ₱/$ — the other currency is a
+ * conversion using the rate in src/config/site.ts → currency. Delete the price
+ * line to show "Check price on TikTok" instead.
  */
 export const products: Product[] = [
   {
@@ -30,7 +31,7 @@ export const products: Product[] = [
     name: 'Athena Brightening & Refreshing Body Wash',
     category: 'Beauty',
     description: 'A clear lavender body wash made with niacinamide, vitamin C and collagen.',
-    price: 14.99,
+    pricePhp: 869,
     image: '/images/products/athena-body-wash.webp',
     imageFallback: '/images/products/athena-body-wash.svg',
     gallery: ['/images/hero.jpg'],
@@ -47,7 +48,7 @@ export const products: Product[] = [
     name: 'Grace and Glow Rouge 540 Glow & Firm Body Wash',
     category: 'Beauty',
     description: 'A ruby-red scrub body wash with niacinamide and collagen, made for glow and firmness.',
-    price: 16.99,
+    pricePhp: 985,
     image: '/images/products/grace-glow-rouge-540.webp',
     imageFallback: '/images/products/grace-glow-rouge-540.svg',
     gallery: ['/images/hero.jpg'],
@@ -61,7 +62,7 @@ export const products: Product[] = [
     name: 'Grace and Glow English Pear & Freesia Body Wash',
     category: 'Beauty',
     description: 'An amber body wash with AHA, BHA, PHA and centella asiatica, scented with English pear and freesia.',
-    price: 16.99,
+    pricePhp: 985,
     image: '/images/products/grace-glow-english-pear.webp',
     imageFallback: '/images/products/grace-glow-english-pear.svg',
     gallery: ['/images/hero.jpg'],

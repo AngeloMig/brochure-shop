@@ -23,6 +23,8 @@ Moving to your own domain later: set `site` to the domain and `base` to `'/'` in
 
 ## Where to edit
 
+**Step-by-step guide with photo sizes, templates and a worksheet: [`docs/content-guide.md`](docs/content-guide.md).**
+
 | What | File |
 | --- | --- |
 | Brand name, handle, TikTok profile URL, hero / section copy, about text, disclosure, demo notice | `src/config/site.ts` |

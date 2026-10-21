@@ -18,6 +18,7 @@ const data = Object.fromEntries(
       category: p.category,
       description: p.description,
       price: typeof p.price === 'number' ? p.price : null,
+      pricePhp: typeof p.pricePhp === 'number' ? p.pricePhp : null,
       badge: p.badge ?? '',
       alt: p.imageAlt ?? p.name,
       fallback: p.imageFallback ? withBase(p.imageFallback) : '',
@@ -685,6 +686,7 @@ const json = JSON.stringify(data).replace(/</g, '\\u003c');
     category: string;
     description: string;
     price: number | null;
+    pricePhp: number | null;
     badge: string;
     alt: string;
     fallback: string;
@@ -870,15 +872,16 @@ const json = JSON.stringify(data).replace(/</g, '\\u003c');
     $('[data-qv-desc]').textContent = entry.description;
     const price = $('[data-qv-price]');
     price.replaceChildren();
-    if (typeof entry.price === 'number') {
+    if (typeof entry.price === 'number' || typeof entry.pricePhp === 'number') {
       const amount = Object.assign(document.createElement('span'), {});
-      amount.dataset.priceUsd = String(entry.price);
+      if (typeof entry.price === 'number') amount.dataset.priceUsd = String(entry.price);
+      if (typeof entry.pricePhp === 'number') amount.dataset.pricePhp = String(entry.pricePhp);
       price.append(amount, Object.assign(document.createElement('small'), { textContent: 'Sample price · final price on TikTok' }));
       (window as any).beaFormatPrices?.(price);
     } else {
       price.textContent = 'Check price on TikTok';
     }
-    $('.qv__currency').hidden = typeof entry.price !== 'number';
+    $('.qv__currency').hidden = typeof entry.price !== 'number' && typeof entry.pricePhp !== 'number';
     currentId = id;
     resetShare();
     const badge = $('[data-qv-badge]');

@@ -6,7 +6,9 @@ export interface Product {
   category: string;
   /** One short sentence: why you recommend it. */
   description: string;
-  /** Price in US dollars, e.g. 14.99 — shown in USD or converted to PHP. Omit = "Check price on TikTok". */
+  /** Exact price in Philippine pesos, e.g. 899 — shown as-is (preferred). */
+  pricePhp?: number;
+  /** Price in US dollars, e.g. 14.99 — used if there's no pricePhp. Omit both = "Check price on TikTok". */
   price?: number;
   /** Local path (e.g. "/images/products/mug.jpg") or full https URL. Empty = placeholder panel. */
   image: string;

@@ -2,10 +2,22 @@ import { site } from '../config/site';
 
 export type Currency = 'USD' | 'PHP';
 
-const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
-const php = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
+const usdFmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+const phpFmt = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 0 });
 
-/** Format a USD amount in the chosen currency. PHP is a conversion, so it's marked approximate. */
-export function formatPrice(amountUsd: number, currency: Currency = site.currency.default): string {
-  return currency === 'PHP' ? `≈ ${php.format(amountUsd * site.currency.usdToPhp)}` : usd.format(amountUsd);
+/**
+ * Format a product price in the chosen currency. Whichever currency was entered
+ * (pricePhp or price in USD) shows exactly; the other is a conversion marked "≈".
+ */
+export function formatPrice(
+  amount: { usd?: number; php?: number },
+  currency: Currency = site.currency.default,
+): string {
+  const rate = site.currency.usdToPhp;
+  if (currency === 'PHP') {
+    if (typeof amount.php === 'number') return phpFmt.format(amount.php);
+    return `≈ ${phpFmt.format((amount.usd ?? 0) * rate)}`;
+  }
+  if (typeof amount.usd === 'number') return usdFmt.format(amount.usd);
+  return `≈ ${usdFmt.format((amount.php ?? 0) / rate)}`;
 }
